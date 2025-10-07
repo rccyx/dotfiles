@@ -1,48 +1,48 @@
 [submodule ".exported"]
     path = .exported
-  	url = https://github.com/ashgw/.exported.git
+  	url = https://github.com/rccyx/.exported.git
 
 [submodule "2fa"]
     path = .2fa
-  	url = https://github.com/ashgw/.2fa.git
+  	url = https://github.com/rccyx/.2fa.git
 
 [submodule "fonts"]
     path = .local/share/fonts
-  	url = https://github.com/ashgw/fonts.git
+  	url = https://github.com/rccyx/fonts.git
 
 [submodule "zshfuncs"]
     path = zshfuncs
-  	url = https://github.com/ashgw/zshfuncs.git
+  	url = https://github.com/rccyx/zshfuncs.git
 
 [submodule ".packages"]
     path = .packages
-	url = https://github.com/ashgw/.packages.git
+	url = https://github.com/rccyx/.packages.git
 
 [submodule ".cursor"]
     path = .cursor
-	url = https://github.com/ashgw/.cursor.git
+	url = https://github.com/rccyx/.cursor.git
 
 [submodule "gnome"]
     path = gnome
-	url = https://github.com/ashgw/gnome.git
+	url = https://github.com/rccyx/gnome.git
 
 [submodule ".icons"]
     path = .icons
-	url = https://github.com/ashgw/.icons.git
+	url = https://github.com/rccyx/.icons.git
 
 [submodule ".themes"]
     path = .themes
-    url = https://github.com/ashgw/.themes.git
+    url = https://github.com/rccyx/.themes.git
 
 [submodule "personal"]
     path = personal
-    url = https://github.com/ashgw/personal.git
+    url = https://github.com/rccyx/personal.git
 
 [submodule ".wallpapers"]
     path = .wallpapers
-    url = https://github.com/ashgw/.wallpapers.git
+    url = https://github.com/rccyx/.wallpapers.git
 
 [submodule ".aws"]
     path = .aws
-    url = https://github.com/ashgw/.aws.git
+    url = https://github.com/rccyx/.aws.git
 

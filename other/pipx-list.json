@@ -7,23 +7,23 @@
                 "main_package": {
                     "app_paths": [
                         {
-                            "__Path__": "/home/ashgw/.local/share/pipx/venvs/mypy/bin/dmypy",
+                            "__Path__": "/home/rccyx/.local/share/pipx/venvs/mypy/bin/dmypy",
                             "__type__": "Path"
                         },
                         {
-                            "__Path__": "/home/ashgw/.local/share/pipx/venvs/mypy/bin/mypy",
+                            "__Path__": "/home/rccyx/.local/share/pipx/venvs/mypy/bin/mypy",
                             "__type__": "Path"
                         },
                         {
-                            "__Path__": "/home/ashgw/.local/share/pipx/venvs/mypy/bin/mypyc",
+                            "__Path__": "/home/rccyx/.local/share/pipx/venvs/mypy/bin/mypyc",
                             "__type__": "Path"
                         },
                         {
-                            "__Path__": "/home/ashgw/.local/share/pipx/venvs/mypy/bin/stubgen",
+                            "__Path__": "/home/rccyx/.local/share/pipx/venvs/mypy/bin/stubgen",
                             "__type__": "Path"
                         },
                         {
-                            "__Path__": "/home/ashgw/.local/share/pipx/venvs/mypy/bin/stubtest",
+                            "__Path__": "/home/rccyx/.local/share/pipx/venvs/mypy/bin/stubtest",
                             "__type__": "Path"
                         }
                     ],
@@ -52,7 +52,7 @@
                 "pipx_metadata_version": "0.5",
                 "python_version": "Python 3.13.5",
                 "source_interpreter": {
-                    "__Path__": "/home/ashgw/miniconda3/bin/python3.13",
+                    "__Path__": "/home/rccyx/miniconda3/bin/python3.13",
                     "__type__": "Path"
                 },
                 "venv_args": []
@@ -64,7 +64,7 @@
                 "main_package": {
                     "app_paths": [
                         {
-                            "__Path__": "/home/ashgw/.local/share/pipx/venvs/oathtool/bin/oathtool",
+                            "__Path__": "/home/rccyx/.local/share/pipx/venvs/oathtool/bin/oathtool",
                             "__type__": "Path"
                         }
                     ],
@@ -89,7 +89,7 @@
                 "pipx_metadata_version": "0.5",
                 "python_version": "Python 3.13.5",
                 "source_interpreter": {
-                    "__Path__": "/home/ashgw/miniconda3/bin/python3.13",
+                    "__Path__": "/home/rccyx/miniconda3/bin/python3.13",
                     "__type__": "Path"
                 },
                 "venv_args": []
@@ -101,7 +101,7 @@
                 "main_package": {
                     "app_paths": [
                         {
-                            "__Path__": "/home/ashgw/.local/share/pipx/venvs/ruff/bin/ruff",
+                            "__Path__": "/home/rccyx/.local/share/pipx/venvs/ruff/bin/ruff",
                             "__type__": "Path"
                         }
                     ],
@@ -126,7 +126,7 @@
                 "pipx_metadata_version": "0.5",
                 "python_version": "Python 3.13.5",
                 "source_interpreter": {
-                    "__Path__": "/home/ashgw/miniconda3/bin/python3.13",
+                    "__Path__": "/home/rccyx/miniconda3/bin/python3.13",
                     "__type__": "Path"
                 },
                 "venv_args": []
@@ -138,28 +138,28 @@
                 "main_package": {
                     "app_paths": [
                         {
-                            "__Path__": "/home/ashgw/.local/share/pipx/venvs/waypaper/bin/waypaper",
+                            "__Path__": "/home/rccyx/.local/share/pipx/venvs/waypaper/bin/waypaper",
                             "__type__": "Path"
                         }
                     ],
                     "app_paths_of_dependencies": {
                         "imageio": [
                             {
-                                "__Path__": "/home/ashgw/.local/share/pipx/venvs/waypaper/bin/imageio_download_bin",
+                                "__Path__": "/home/rccyx/.local/share/pipx/venvs/waypaper/bin/imageio_download_bin",
                                 "__type__": "Path"
                             },
                             {
-                                "__Path__": "/home/ashgw/.local/share/pipx/venvs/waypaper/bin/imageio_remove_bin",
+                                "__Path__": "/home/rccyx/.local/share/pipx/venvs/waypaper/bin/imageio_remove_bin",
                                 "__type__": "Path"
                             }
                         ],
                         "numpy": [
                             {
-                                "__Path__": "/home/ashgw/.local/share/pipx/venvs/waypaper/bin/f2py",
+                                "__Path__": "/home/rccyx/.local/share/pipx/venvs/waypaper/bin/f2py",
                                 "__type__": "Path"
                             },
                             {
-                                "__Path__": "/home/ashgw/.local/share/pipx/venvs/waypaper/bin/numpy-config",
+                                "__Path__": "/home/rccyx/.local/share/pipx/venvs/waypaper/bin/numpy-config",
                                 "__type__": "Path"
                             }
                         ]
@@ -181,7 +181,7 @@
                     "man_pages_of_dependencies": [],
                     "man_paths": [
                         {
-                            "__Path__": "/home/ashgw/.local/share/pipx/venvs/waypaper/share/man/man1/waypaper.1.gz",
+                            "__Path__": "/home/rccyx/.local/share/pipx/venvs/waypaper/share/man/man1/waypaper.1.gz",
                             "__type__": "Path"
                         }
                     ],
@@ -196,7 +196,7 @@
                 "pipx_metadata_version": "0.5",
                 "python_version": "Python 3.13.5",
                 "source_interpreter": {
-                    "__Path__": "/home/ashgw/miniconda3/bin/python3.13",
+                    "__Path__": "/home/rccyx/miniconda3/bin/python3.13",
                     "__type__": "Path"
                 },
                 "venv_args": []

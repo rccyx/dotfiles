@@ -38,7 +38,7 @@ name='AnythingLM'
 
 [custom-keybindings/custom6]
 binding='<Alt>w'
-command='/home/ashgw/whisper/whisper-toggle.sh\n'
+command='/home/rccyx/whisper/whisper-toggle.sh\n'
 name='whisper'
 
 [custom-keybindings/custom7]

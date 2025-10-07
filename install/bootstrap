@@ -20,7 +20,7 @@ SCRIPT_SELF="$(readlink -f "$0" 2>/dev/null || printf '%s' "$0")"
 REENTERED="${1-}"; if [[ "$REENTERED" == "--reentered" ]]; then shift; fi
 
 # ---------- repo defaults (fixed) ----------
-: "${REPO_GIT:=https://github.com/ashgw/dotfiles.git}"
+: "${REPO_GIT:=https://github.com/rccyx/dotfiles.git}"
 derive_repo_raw_if_possible(){
   if [[ -z "${REPO_RAW-}" && -n "${REPO_GIT-}" ]]; then
     if [[ "$REPO_GIT" =~ github.com[:/]+([^/]+)/([^/.]+)(\.git)?$ ]]; then
@@ -380,7 +380,7 @@ read -r -p "[y/N]: " ans
 case "$ans" in
   [yY]|[yY][eE][sS])
     say "Fetching Hyprland installer..."
-    if curl -fsSL "https://raw.githubusercontent.com/ashgw/dotfiles/refs/heads/main/install/hyprland/install" | bash; then
+    if curl -fsSL "https://raw.githubusercontent.com/rccyx/dotfiles/refs/heads/main/install/hyprland/install" | bash; then
     else
       err "Hyprland installer failed"
     fi
@@ -395,7 +395,7 @@ read -r -p "[y/N]: " ans
 case "$ans" in
   [yY]|[yY][eE][sS])
     say "Fetching SDDM installer..."
-    if curl -fsSL "https://raw.githubusercontent.com/ashgw/debion/refs/heads/main/setup" | bash; then
+    if curl -fsSL "https://raw.githubusercontent.com/rccyx/debion/refs/heads/main/setup" | bash; then
     else
       err "SDDM setup successfully"
     fi
@@ -405,12 +405,12 @@ case "$ans" in
     ;;
 esac
 
-say "Would you like to setup your GPG keys @ashgw?"
+say "Would you like to setup your GPG keys @rccyx?"
 read -r -p "[y/N]: " ans
 case "$ans" in
   [yY]|[yY][eE][sS])
     say "Setting up..."
-    if curl -fsSL "http://raw.githubusercontent.com/ashgw/dotfiles/refs/heads/main/install/post-bootstrap" | bash; then
+    if curl -fsSL "http://raw.githubusercontent.com/rccyx/dotfiles/refs/heads/main/install/post-bootstrap" | bash; then
     else
       err "GPG setup failed"
     fi

@@ -208,9 +208,9 @@ export GPG_TTY=/dev/pts/2
 # Toolchains and language env
 # ───────────────────────────────
 # Nix
-if [ -e /home/ashgw/.nix-profile/etc/profile.d/nix.sh ]; then . /home/ashgw/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
+if [ -e /home/rccyx/.nix-profile/etc/profile.d/nix.sh ]; then . /home/rccyx/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
 export PATH="$HOME/miniconda3/bin:$PATH"
-. /home/ashgw/miniconda3/etc/profile.d/conda.sh
+. /home/rccyx/miniconda3/etc/profile.d/conda.sh
 . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh 2>/dev/null || :
 
 # NVM & Node

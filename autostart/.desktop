@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Exec=/home/ashgw/.local/bin/startup_apps.sh
+Exec=/home/rccyx/.local/bin/startup_apps.sh
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
