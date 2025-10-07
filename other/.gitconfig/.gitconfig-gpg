@@ -1,6 +1,6 @@
 [user]
-    email = ashrefgw@proton.me
-    name = ashgw
+    email = oss@rccyx.com
+    name = rccyx
     signingkey =  79821E0224D34EC4969FF6A8E5168EE090AE80D0
 
 [gpg]
@@ -62,3 +62,4 @@
     ck = checkout
     s = status
     fa='add $(git ls-files --modified | fzf -m --preview "git diff --color -- {1}")'
+

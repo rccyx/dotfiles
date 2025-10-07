@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repo with submodules (using PAT)
         uses: actions/checkout@v4
         with:
-          repository: ashgw/dotfiles
+          repository: rccyx/dotfiles
           token: ${{ secrets.PAT_TOKEN }}
           submodules: recursive
 
@@ -37,3 +37,4 @@ jobs:
           git add .
           git commit -m "auto updated submodule references" || echo "No changes"
           git push || echo "No push needed"
+

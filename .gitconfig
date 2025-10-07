@@ -1,8 +1,8 @@
 [user]
-    email = ashrefgw@proton.me
-    name = ashgw
-    # this signs with SSH, to sign with GPG, @see {@link http://github.com/ashgw/dotfiles/blob/main/other/.gitconfig/.gitconfig-gpg }
-    signingkey = /home/ashgw/.ssh/github.pub
+    email = oss@rccyx.com
+    name = rccyx
+    # this signs with SSH, to sign with GPG, @see {@link http://github.com/rccyx/dotfiles/blob/main/other/.gitconfig/.gitconfig-gpg }
+    signingkey = /home/rccyx/.ssh/github.pub
 
 [gpg]
     program = gpg
@@ -64,3 +64,4 @@
     ck = checkout
     s = status
     fa='add $(git ls-files --modified | fzf -m --preview "git diff --color -- {1}")'
+
