@@ -1,6 +1,6 @@
 
 #!/usr/bin/env zsh
-# setup-cliphist.zsh  Hyprland + Wayland. No systemd. Idempotent.
+# setup-cliphist.zsh  hyprland + wayland. no systemd. idempotent.
 
 emulate -L zsh
 setopt err_return no_unset pipefail
@@ -10,9 +10,10 @@ setopt err_return no_unset pipefail
 : "${STATE_DIR:=$HOME/.local/state/cliphist}"
 : "${CACHE_DIR:=$HOME/.cache/cliphist}"
 : "${HYPR_CONF:=$HOME/.config/hypr/hyprland.conf}"
-: "${POLL_MS:=500}"           # clipboard poll interval ms
-: "${TIMEOUT_S:=0.2}"         # per wl-paste call timeout seconds
-: "${STALE_SEC:=300}"         # consider cache stale after this many seconds
+: "${POLL_MS:=500}"
+: "${TIMEOUT_S:=2.0}"        # increased to handle large clips
+: "${STALE_SEC:=300}"
+: "${MAX_BYTES:=10485760}"   # 10mb safeguard
 
 STORE="$BIN_DIR/cliphist-store-prune"
 WATCH="$BIN_DIR/cliphist-watchers"
@@ -26,18 +27,18 @@ ok(){   print -P "%F{2}[ok]%f $*"; }
 warn(){ print -P "%F{3}[warn]%f $*"; }
 err(){  print -P "%F{1}[err]%f $*"; exit 1; }
 have(){ command -v "$1" >/dev/null 2>&1; }
-need_user(){ [[ $EUID -ne 0 ]] || err "Run as your user, not root"; }
+need_user(){ [[ $EUID -ne 0 ]] || err "run as your user, not root"; }
 mkdirp(){ [[ -d "$1" ]] || mkdir -p "$1"; }
 make_exec(){ chmod +x "$1" || err "chmod +x $1 failed"; }
 
 assert_env(){
-  have cliphist || err "cliphist missing. Install: GO111MODULE=on go install github.com/sentriz/cliphist@latest"
+  have cliphist || err "cliphist missing. install: GO111MODULE=on go install github.com/sentriz/cliphist@latest"
   have wl-copy  || err "wl-clipboard missing"
   have wl-paste || err "wl-clipboard missing"
   have file     || err "file(1) missing"
-  command -v fzf  >/dev/null || warn "fzf not found. Terminal picker will be skipped"
-  command -v wofi >/dev/null || warn "wofi not found. GUI picker will be skipped"
-  [[ -n "$WAYLAND_DISPLAY" && -n "$XDG_RUNTIME_DIR" ]] || warn "Not in a Wayland session. Watchers start on next Hyprland login"
+  command -v fzf  >/dev/null || warn "fzf not found. terminal picker will be skipped"
+  command -v wofi >/dev/null || warn "wofi not found. gui picker will be skipped"
+  [[ -n "$WAYLAND_DISPLAY" && -n "$XDG_RUNTIME_DIR" ]] || warn "not in a wayland session. watchers start on next hyprland login"
 }
 
 write_store(){
@@ -54,7 +55,8 @@ STATE_DIR="${STATE_DIR:-$HOME/.local/state/cliphist}"
 CACHE_DIR="${CACHE_DIR:-$HOME/.cache/cliphist}"
 LOCKFILE="$STATE_DIR/lockfile"
 CACHE_TSV="$CACHE_DIR/top.tsv"
-TIMEOUT_S="${TIMEOUT_S:-0.2}"
+TIMEOUT_S="${TIMEOUT_S:-2.0}"
+MAX_BYTES="${MAX_BYTES:-10485760}"
 
 has(){ command -v "$1" >/dev/null 2>&1; }
 
@@ -65,7 +67,7 @@ lock_and_run() {
     "$@"
   else
     LOCKDIR="${LOCKFILE}.d"
-    if mkdir "$LOCKDIR" 2>/null; then
+    if mkdir "$LOCKDIR" 2>/dev/null; then
       trap 'rmdir "$LOCKDIR" 2>/dev/null || true' EXIT
       "$@"
     else
@@ -74,22 +76,30 @@ lock_and_run() {
   fi
 }
 
-store_input() {
+store_from_stdin() {
+  # stdin -> cliphist
   if [ -t 0 ]; then
-    if has timeout; then
-      { timeout "$TIMEOUT_S" wl-paste --no-newline 2>/dev/null || true; } | cliphist store || true
-      { timeout "$TIMEOUT_S" wl-paste --type image 2>/dev/null || true; } | cliphist store || true
-    else
-      { ( wl-paste --no-newline 2>/dev/null || true ) & pid=$!; sleep "$TIMEOUT_S"; kill -0 "$pid" 2>/dev/null && kill "$pid" 2>/dev/null || true; wait "$pid" 2>/dev/null || true; } | cliphist store || true
-      { ( wl-paste --type image 2>/dev/null || true ) & pid=$!; sleep "$TIMEOUT_S"; kill -0 "$pid" 2>/dev/null && kill "$pid" 2>/dev/null || true; wait "$pid" 2>/dev/null || true; } | cliphist store || true
-    fi
+    return 1
+  fi
+  head -c "$MAX_BYTES" | cliphist store || true
+  return 0
+}
+
+store_from_clipboard() {
+  if has timeout; then
+    { timeout "$TIMEOUT_S" wl-paste --no-newline 2>/dev/null || true; } | head -c "$MAX_BYTES" | cliphist store || true
+    { timeout "$TIMEOUT_S" wl-paste --type image 2>/dev/null || true; } | cliphist store || true
   else
-    cat | cliphist store || true
+    { ( wl-paste --no-newline 2>/dev/null || true ) & pid=$!; sleep "$TIMEOUT_S"; kill -0 "$pid" 2>/dev/null && kill "$pid" 2>/dev/null || true; wait "$pid" 2>/dev/null || true; } | head -c "$MAX_BYTES" | cliphist store || true
+    { ( wl-paste --type image 2>/dev/null || true ) & pid=$!; sleep "$TIMEOUT_S"; kill -0 "$pid" 2>/dev/null && kill "$pid" 2>/dev/null || true; wait "$pid" 2>/dev/null || true; } | cliphist store || true
   fi
 }
 
 do_store(){
-  store_input
+  if ! store_from_stdin; then
+    store_from_clipboard
+  fi
+
   mkdir -p "$CACHE_DIR"
   all="$(mktemp -p "$CACHE_DIR" all.XXXXXX.tsv)"
   keep="$(mktemp -p "$CACHE_DIR" keep.XXXXXX.tsv)"
@@ -114,7 +124,8 @@ SH
   perl -0777 -pe "s|STATE_DIR:-\\$HOME/.local/state/cliphist|STATE_DIR:-$STATE_DIR|g" -i "$STORE" 2>/dev/null || true
   perl -0777 -pe "s|CACHE_DIR:-\\$HOME/.cache/cliphist|CACHE_DIR:-$CACHE_DIR|g" -i "$STORE" 2>/dev/null || true
   perl -0777 -pe "s/CLIP_CAP:-20/CLIP_CAP:-$CLIP_CAP/g" -i "$STORE" 2>/dev/null || true
-  perl -0777 -pe "s/TIMEOUT_S:-0.2/TIMEOUT_S:-$TIMEOUT_S/g" -i "$STORE" 2>/dev/null || true
+  perl -0777 -pe "s/TIMEOUT_S:-2.0/TIMEOUT_S:-$TIMEOUT_S/g" -i "$STORE" 2>/dev/null || true
+  perl -0777 -pe "s/MAX_BYTES:-10485760/MAX_BYTES:-$MAX_BYTES/g" -i "$STORE" 2>/dev/null || true
   make_exec "$STORE"
   ok "store+prune+cache -> $STORE"
 }
@@ -130,9 +141,10 @@ STATE_DIR="${STATE_DIR:-$HOME/.local/state/cliphist}"
 STORE="${STORE_PATH:-$HOME/.local/bin/cliphist-store-prune}"
 PIDFILE="$STATE_DIR/watchers.pid"
 POLL_MS="${POLL_MS:-500}"
-TIMEOUT_S="${TIMEOUT_S:-0.2}"
+TIMEOUT_S="${TIMEOUT_S:-2.0}"
 CACHE_TSV="${CACHE_DIR:-$HOME/.cache/cliphist}/top.tsv"
 STALE_SEC="${STALE_SEC:-300}"
+MAX_BYTES="${MAX_BYTES:-10485760}"
 
 need_env(){ [ -n "${WAYLAND_DISPLAY:-}" ] && [ -n "${XDG_RUNTIME_DIR:-}" ]; }
 running(){ pgrep -fa 'wl-paste .* --watch .*cliphist-store-prune' >/dev/null || pgrep -fa 'cliphist-poller' >/dev/null; }
@@ -146,23 +158,24 @@ need_env || exit 0
 running && exit 0
 rm -f "$PIDFILE"
 
-# Event watchers
 setsid -f sh -c "wl-paste --type text           --watch '$STORE' >/dev/null 2>&1" & t1=$! || true
 setsid -f sh -c "wl-paste --primary --type text --watch '$STORE' >/dev/null 2>&1" & t2=$! || true
 setsid -f sh -c "wl-paste --type image          --watch '$STORE' >/dev/null 2>&1" & t3=$! || true
 
-# Poller to catch OSC52 terminals and stale caches
 setsid -f bash -c '
   set -euo pipefail
   STORE="${STORE_PATH:-$HOME/.local/bin/cliphist-store-prune}"
   CACHE_TSV="${CACHE_DIR:-$HOME/.cache/cliphist}/top.tsv"
   POLL_MS="${POLL_MS:-500}"
-  TIMEOUT_S="${TIMEOUT_S:-0.2}"
+  TIMEOUT_S="${TIMEOUT_S:-2.0}"
   STALE_SEC="${STALE_SEC:-300}"
+  MAX_BYTES="${MAX_BYTES:-10485760}"
 
   force_store(){
     if out="$(timeout "$TIMEOUT_S" wl-paste --no-newline 2>/dev/null || true)"; then
-      [ -n "$out" ] && printf %s "$out" | "$STORE" || true
+      if [ -n "$out" ]; then
+        printf %s "$out" | head -c "$MAX_BYTES" | "$STORE" || true
+      fi
     fi
     if timeout "$TIMEOUT_S" wl-paste --type image >/dev/null 2>&1; then
       timeout "$TIMEOUT_S" wl-paste --type image 2>/dev/null | "$STORE" || true
@@ -184,7 +197,7 @@ setsid -f bash -c '
     if [ -n "$txt" ]; then
       h="$(printf %s "$txt" | sha1sum | cut -d" " -f1)"
       if [ "$h" != "$last_txt" ]; then
-        printf %s "$txt" | "$STORE" || true
+        printf %s "$txt" | head -c "$MAX_BYTES" | "$STORE" || true
         last_txt="$h"
       fi
     fi
@@ -209,8 +222,9 @@ SH
   perl -0777 -pe "s|STORE_PATH:-\\$HOME/.local/bin/cliphist-store-prune|STORE_PATH:-$STORE|g" -i "$WATCH" 2>/dev/null || true
   perl -0777 -pe "s|STATE_DIR:-\\$HOME/.local/state/cliphist|STATE_DIR:-$STATE_DIR|g" -i "$WATCH" 2>/dev/null || true
   perl -0777 -pe "s/POLL_MS:-500/POLL_MS:-$POLL_MS/g" -i "$WATCH" 2>/dev/null || true
-  perl -0777 -pe "s/TIMEOUT_S:-0.2/TIMEOUT_S:-$TIMEOUT_S/g" -i "$WATCH" 2>/dev/null || true
+  perl -0777 -pe "s/TIMEOUT_S:-2.0/TIMEOUT_S:-$TIMEOUT_S/g" -i "$WATCH" 2>/dev/null || true
   perl -0777 -pe "s/STALE_SEC:-300/STALE_SEC:-$STALE_SEC/g" -i "$WATCH" 2>/dev/null || true
+  perl -0777 -pe "s/MAX_BYTES:-10485760/MAX_BYTES:-$MAX_BYTES/g" -i "$WATCH" 2>/dev/null || true
   make_exec "$WATCH"
   ok "watchers -> $WATCH"
 }
@@ -263,7 +277,7 @@ need cliphist; need wofi; need wl-copy; need file
 CAP="${CLIP_CAP:-20}"
 CACHE_TSV="${CACHE_DIR:-$HOME/.cache/cliphist}/top.tsv"
 if [ ! -s "$CACHE_TSV" ]; then
-  command -v notify-send >/dev/null 2>&1 && notify-send "cliphist" "Cache empty. Try again in a second."
+  command -v notify-send >/dev/null 2>&1 && notify-send "cliphist" "cache empty. try again in a second."
   exit 0
 fi
 sel="$(tac "$CACHE_TSV" | head -n "$CAP" | wofi --dmenu -i -p 'clip>' )" || exit 0
@@ -313,19 +327,19 @@ ensure_hypr_bind(){
   local need2='bind = SUPER, X, exec, $HOME/.local/bin/clip-wofi'
   if ! grep -Fq "$need1" "$HYPR_CONF" 2>/dev/null; then
     print -- "$need1" >> "$HYPR_CONF"
-    ok "Injected exec-once into $HYPR_CONF"
+    ok "injected exec-once into $HYPR_CONF"
   fi
   if command -v wofi >/dev/null 2>&1; then
     if ! grep -Fq "$need2" "$HYPR_CONF" 2>/dev/null; then
       print -- "$need2" >> "$HYPR_CONF"
-      ok "Injected Super+X bind into $HYPR_CONF"
+      ok "injected super+x bind into $HYPR_CONF"
     fi
   fi
 }
 
 ensure_tmux_integration(){
   if ! command -v tmux >/dev/null 2>&1; then
-    warn "tmux not found. Skipping tmux clipboard integration"
+    warn "tmux not found. skipping tmux clipboard integration"
     return 0
   fi
   local tmux_main="$HOME/.tmux.conf"
@@ -333,7 +347,7 @@ ensure_tmux_integration(){
   local tmux_snip="$tmux_snip_dir/cliphist.conf"
   mkdir -p "$tmux_snip_dir"
   cat > "$tmux_snip" <<'TMUX'
-# cliphist Wayland bridge
+# cliphist wayland bridge
 set -g set-clipboard on
 bind -T copy-mode-vi y send -X copy-pipe-and-cancel "wl-copy --trim-newline"
 bind -T copy-mode-vi Enter send -X copy-pipe-and-cancel "wl-copy --trim-newline"
@@ -343,12 +357,12 @@ TMUX
   if [ -f "$tmux_main" ]; then
     if ! grep -Fq "source-file $tmux_snip" "$tmux_main" 2>/dev/null; then
       printf '\n# cliphist integration\nsource-file %s\n' "$tmux_snip" >> "$tmux_main"
-      ok "Injected tmux bindings into $tmux_main"
+      ok "injected tmux bindings into $tmux_main"
       [ -n "$TMUX" ] && tmux source-file "$tmux_main" 2>/dev/null || true
     fi
   else
     printf 'source-file %s\n' "$tmux_snip" > "$tmux_main"
-    ok "Created $tmux_main with clipboard bindings"
+    ok "created $tmux_main with clipboard bindings"
     [ -n "$TMUX" ] && tmux source-file "$tmux_main" 2>/dev/null || true
   fi
 }
@@ -357,7 +371,7 @@ start_watchers_now(){
   if pgrep -fa 'wl-paste .* --watch .*cliphist-store-prune' >/dev/null || pgrep -fa 'cliphist-poller' >/dev/null; then
     ok "watchers already running"
   else
-    [[ -n "$WAYLAND_DISPLAY" && -n "$XDG_RUNTIME_DIR" ]] || { warn "No Wayland env in this shell. Auto start next Hyprland login"; return 0; }
+    [[ -n "$WAYLAND_DISPLAY" && -n "$XDG_RUNTIME_DIR" ]] || { warn "no wayland env in this shell. auto start next hyprland login"; return 0; }
     nohup "$WATCH" >/dev/null 2>&1 &
     ok "watchers started"
   fi
@@ -386,7 +400,7 @@ setup(){
   ensure_hypr_bind
   ensure_tmux_integration
   start_watchers_now
-  ok "Setup done. Use Super+X for picker. Watchers persist."
+  ok "setup done. use super+X for picker. watchers persist."
 }
 
 destroy(){
@@ -405,18 +419,18 @@ reset(){
   stop_dupes
   command -v cliphist >/dev/null 2>&1 && cliphist wipe 2>/dev/null || true
   : > "$CACHE_TSV" 2>/dev/null || true
-  ok "wiped cliphist DB and cache"
+  ok "wiped cliphist db and cache"
 }
 
 usage(){
   cat <<EOF
-Usage:
-  $0 setup      install helpers, rebuild cache, ensure Hypr binds and tmux, start watchers
+usage:
+  $0 setup      install helpers, rebuild cache, ensure hypr binds and tmux, start watchers
   $0 destroy    stop watchers and remove helpers, clear state
   $0 status     show watcher processes and cache sample
-  $0 reset      wipe cliphist DB and cache, then run setup
-Env:
-  CLIP_CAP=$CLIP_CAP  POLL_MS=$POLL_MS  TIMEOUT_S=$TIMEOUT_S  STALE_SEC=$STALE_SEC
+  $0 reset      wipe cliphist db and cache, then run setup
+env:
+  CLIP_CAP=$CLIP_CAP  POLL_MS=$POLL_MS  TIMEOUT_S=$TIMEOUT_S  STALE_SEC=$STALE_SEC  MAX_BYTES=$MAX_BYTES
   BIN_DIR=$BIN_DIR    CACHE_DIR=$CACHE_DIR
   STATE_DIR=$STATE_DIR HYPR_CONF=$HYPR_CONF
 EOF
