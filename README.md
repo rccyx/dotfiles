@@ -25,9 +25,6 @@ bash <(curl -L api.rccyx.com/v1/bootstrap)
     <img src="./images/files.png" alt="Image 1" style="width: 100%;">
   </div>
 
- <div style="flex: 1; min-width: 200px; margin: 5px;">
-    <img src="./images/py.png" alt="Image 1" style="width: 100%;">
-  </div>
 
 <div style="flex: 1; min-width: 200px; margin: 5px;">
     <img src="./images/black0.png" alt="Image 1" style="width: 100%;">
