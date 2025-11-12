@@ -13,7 +13,7 @@ setopt err_return no_unset pipefail
 : "${CLIP_CAP:=200}"
 
 # periodic full wipe every N days (stores last-wipe timestamp in STATE_DIR)
-: "${CLEAR_DAYS:=30}"
+: "${CLEAR_DAYS:=3}"
 
 # watcher tuning
 : "${POLL_MS:=500}"
