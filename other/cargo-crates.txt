@@ -1,8 +1,11 @@
 broot
+cargo-fuzz
+clipvault
 dua-cli
 just
 lookas
 lsd
+rlyx
 starship
 swww
 swww-daemon

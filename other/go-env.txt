@@ -1,4 +1,4 @@
-/home/rccyx/go
+/home/ashgw/go
 
 linux
 amd64

@@ -11,6 +11,7 @@ base-passwd
 bash
 bash-completion
 bat
+bats
 bc
 bibata-cursor-theme
 bind9-dnsutils
@@ -18,6 +19,7 @@ bind9-host
 blueman
 bluez
 bluez-tools
+brave-browser
 brightnessctl
 bsdutils
 btop
@@ -84,6 +86,7 @@ fonts-dejavu
 fonts-firacode
 fonts-liberation
 fonts-noto
+fping
 fprintd
 fuse
 fuse-overlayfs
@@ -337,14 +340,17 @@ mako-notifier
 man-db
 manpages
 mawk
+mdns-scan
 media-types
 meson
+miniupnpc
 mount
 mousepad
 mpv
 mpv-mpris
 nano
 nautilus
+nbtscan
 ncdu
 ncurses-base
 ncurses-bin
@@ -383,7 +389,6 @@ pkgconf
 pkg-config
 playerctl
 polkitd
-polkit-kde-agent-1
 poppler-utils
 procps
 psmisc
@@ -438,6 +443,7 @@ sddm
 seatd
 sed
 sensible-utils
+shellcheck
 shim-signed
 slirp4netns
 slurp
@@ -473,6 +479,7 @@ unzip
 usbutils
 util-linux
 util-linux-extra
+vault
 viewnior
 vim
 vim-common
