@@ -128,6 +128,7 @@ TIMEFMT=$'\nreal\t%E\nuser\t%U\nsys\t%S\ncpu\t%P'
 # zoxide + starship
 eval "$(zoxide init zsh)"
 eval "$(starship init zsh)"
+export STARSHIP_CONFIG=~/starship/starship-white.toml
 
 # ───────────────────────────────
 # FZF defaults
