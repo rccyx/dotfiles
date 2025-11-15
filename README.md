@@ -12,13 +12,13 @@ bash <(curl -L api.rccyx.com/v1/bootstrap)
 ### Overview (GNOME)
 
 <div style="flex: 1; min-width: 200px; margin: 5px;">
-    <img src="./images//gnome/1.png" alt="Image 1" style="width: 100%;">
+    <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b2e258d6-7cbd-4939-8525-884b09054716" />
 </div>
 
 <div style="flex: 1; min-width: 200px; margin: 5px;">
-    <img src="./images//gnome/2.png" alt="Image 1" style="width: 100%;">
+    <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/336e8167-4b87-4d8b-89ad-db3c52989a00" />
 </div>
 
 <div style="flex: 1; min-width: 200px; margin: 5px;">
-    <img src="./images//gnome/3.png" alt="Image 1" style="width: 100%;">
+    <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/f284138b-1d85-4d1b-8717-f7aa52cf7b87" />
 </div>
