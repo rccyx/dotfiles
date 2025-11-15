@@ -104,8 +104,6 @@ setopt promptsubst
 WORDCHARS=${WORDCHARS//\/}   # treat slash as a word boundary
 PROMPT_EOL_MARK=""           # hide %
 
-# Dircolors (if present)
-eval "$(dircolors ~/.dircolors 2>/dev/null || true)"
 
 # ───────────────────────────────
 # History and timing
@@ -129,6 +127,9 @@ TIMEFMT=$'\nreal\t%E\nuser\t%U\nsys\t%S\ncpu\t%P'
 eval "$(zoxide init zsh)"
 eval "$(starship init zsh)"
 export STARSHIP_CONFIG=~/starship/starship-white.toml
+
+# Dircolors 
+eval "$(dircolors ~/.dircolors 2>/dev/null || true)"
 
 # ───────────────────────────────
 # FZF defaults
