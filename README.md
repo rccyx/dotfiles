@@ -1,9 +1,9 @@
 # dotfiles
 
-I run either **Hyprland** or **GNOME**, depending on the machine and workflow. This script is used to replicate my setup 1:1 across all my rigs with one command.
+I run either **Hyprland** or **GNOME**, depending on the machine and workflow. This script is used to replicate my setup 1:1 across all my rigs with a single automatic bootstrap command.
 
 > [!CAUTION]
-> The installation script is meant to be used on a minimal Debian (Trixie) installation. It will replace any existing configuration. Proceed with caution.
+> This installation script is intended for a fresh and minimal Debian [Trixie](https://www.debian.org/releases/trixie/debian-installer/). Running it on an existing system may overwrite your files.
 
 ```shell
 bash <(curl -L api.rccyx.com/v1/bootstrap)

@@ -46,3 +46,14 @@
     path = .aws
     url = https://github.com/rccyx/.aws.git
 
+
+[submodule "tmux"]
+    path = tmux
+    url = https://github.com/rccyx/tmux.git
+
+
+
+[submodule "starship"]
+    path = starship
+    url = https://github.com/rccyx/starship.git
+
