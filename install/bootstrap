@@ -232,11 +232,10 @@ copy_entry(){ local src="$1" rel="$2" dst="$HOME/$rel"; [[ -d "$src" ]] && merge
 
 EXCLUDES=(
   ".git" ".github" ".gitmodules" ".vscode" "install" "other" ".local"
-  ".wallappers" ".wallpapers" "gnome" "gome" "autostart" ".aws" "personal"
-  "utils" ".icons" "packages" ".packages" "README.md"
+  ".wallpapers" "gnome" "autostart" ".aws" "personal"
+  ".icons" ".packages" "README.md"
 )
 
-is_excluded_top(){ local base="$1"; for x in "${EXCLUDES[@]}"; do [[ "$base" == "$x" ]] && return 0; done; return 1; }
 
 clone_dotfiles_tmp(){
   local tmp; tmp="$(mktemp -d)"
@@ -250,18 +249,28 @@ clone_dotfiles_tmp(){
 
 sync_dotfiles_from_repo(){
   local tmp="$1"
-  # 1) .config (copy deep)
-  if [[ -d "$tmp/.config" ]]; then
-    while IFS= read -r -d '' path; do
-      local rel="${path#$tmp/}"; copy_entry "$path" "$rel"
-    done < <(find "$tmp/.config" -mindepth 1 -print0)
-  else say "no .config in repo, skipping .config sync"; fi
+  say "Deep copying all dotfiles (excluding: ${EXCLUDES[*]})"
 
-  # 2) top-level (skip listed)
+  # Copy everything recursively, excluding the listed items
   while IFS= read -r -d '' path; do
-    local base rel; base="$(basename "$path")"; is_excluded_top "$base" && { say "skip top-level: $base"; continue; }
-    rel="${path#$tmp/}"; copy_entry "$path" "$rel"
-  done < <(find "$tmp" -mindepth 1 -maxdepth 1 -print0)
+    local rel="${path#$tmp/}"
+
+    # Skip if any part of the path matches excluded patterns
+    local skip=0
+    for exclude in "${EXCLUDES[@]}"; do
+      if [[ "$rel" == "$exclude"/* || "$rel" == "$exclude" ]]; then
+        skip=1
+        break
+      fi
+    done
+
+    if [[ $skip -eq 1 ]]; then
+      say "skip excluded: $rel"
+      continue
+    fi
+
+    copy_entry "$path" "$rel"
+  done < <(find "$tmp" -mindepth 1 -type f -o -type d -print0 | sort)
 }
 
 # ---------- Start ----------
@@ -381,6 +390,7 @@ case "$ans" in
   [yY]|[yY][eE][sS])
     say "Fetching Hyprland installer..."
     if curl -fsSL "https://raw.githubusercontent.com/rccyx/dotfiles/refs/heads/main/install/hyprland/install" | bash; then
+      ok "Hyprland installed successfully"
     else
       err "Hyprland installer failed"
     fi
@@ -395,9 +405,10 @@ read -r -p "[y/N]: " ans
 case "$ans" in
   [yY]|[yY][eE][sS])
     say "Fetching SDDM installer..."
-    if curl -fsSL "https://raw.githubusercontent.com/rccyx/debion/refs/heads/main/setup" | bash; then
+    if curl -fsSL "https://raw.githubusercontent.com/rccyx/thyx/refs/heads/main/setup" | bash; then
+      ok "SDDM setup successfully"
     else
-      err "SDDM setup successfully"
+      err "SDDM setup failed"
     fi
     ;;
   *)
@@ -411,6 +422,7 @@ case "$ans" in
   [yY]|[yY][eE][sS])
     say "Setting up..."
     if curl -fsSL "http://raw.githubusercontent.com/rccyx/dotfiles/refs/heads/main/install/post-bootstrap" | bash; then
+      ok "GPG setup completed successfully"
     else
       err "GPG setup failed"
     fi
