@@ -27,7 +27,8 @@ set autoindent
 set shiftwidth=4
 set smarttab
 set title
-set bg=light
+" set bg=light
+set background=dark
 " only set guioptions if it exists (avoids E518 on nvim)
 if exists("&guioptions")
   set guioptions+=a
@@ -351,15 +352,49 @@ require("catppuccin").setup({
   flavour = "mocha",
   integrations = { bufferline = true, treesitter = true, coc_nvim = true, nvimtree = true, native_lsp = { enabled = true } }
 })
-vim.cmd.colorscheme "catppuccin"
+
+_G.ForceTransparent = function()
+  local groups = {
+    "Normal",
+    "NormalFloat",
+    "SignColumn",
+    "LineNr",
+    "CursorLineNr",
+    "Folded",
+    "MsgArea",
+    "ColorColumn",
+    "WinSeparator",
+  }
+
+  for _, name in ipairs(groups) do
+    vim.api.nvim_set_hl(0, name, { bg = "NONE" })
+  end
+end
+
+vim.cmd.colorscheme("catppuccin")
+ForceTransparent()
+
+local themes = {
+  "catppuccin",
+  "dracula",
+  "gruvbox",
+  "tokyonight",
+  "neosolarized",
+}
+
+local i = 1
+
+_G.CycleTheme = function()
+  i = i % #themes + 1
+  local t = themes[i]
+  vim.cmd("colorscheme " .. t)
+  ForceTransparent()
+  print("theme: " .. t)
+end
 EOF
 
-" REMOVED: bufferline setup block
-" lua << EOF
-" require("bufferline").setup({
-"   options = { mode = "buffers", diagnostics = "nvim_lsp", separator_style = "slant", show_close_icon = false, show_buffer_close_icons = false, always_show_bufferline = false },
-" })
-" EOF
+" Theme toggle
+nnoremap <leader>th :lua CycleTheme()<CR>
 
 " ==========================================================
 "                  KEYBINDINGS & COMMANDS
@@ -470,7 +505,7 @@ function! ToggleNERDTreeFind()
     NERDTreeClose
   else
     execute 'NERDTreeFind'
-    execute 'vertical resize ' . get(g:, 'NERDTreeWinSize', 28)
+    execute 'vertical resize ' . get(g:,'NERDTreeWinSize',28)
   endif
 endfunction
 nnoremap <leader>n :call ToggleNERDTreeFind()<CR>
@@ -580,6 +615,11 @@ autocmd BufWritePre * cal cursor(currPos[1], currPos[2])
 
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 
+augroup TransparentBG
+  autocmd!
+  autocmd ColorScheme * lua ForceTransparent()
+augroup END
+
 if &diff
     highlight! link DiffText MatchParen
 endif
@@ -606,4 +646,3 @@ nnoremap <leader>h :call ToggleHiddenAll()<CR>
 "                  MISC VISUAL SETTINGS
 " ==========================================================
 hi Normal guibg=NONE
-
