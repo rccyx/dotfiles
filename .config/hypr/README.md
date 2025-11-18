@@ -6,11 +6,11 @@
 - Chrome runs in app mode for “native” webapps
 - Dwindle layout everywhere
 - Rounded corners, subtle blur, clean borders
-- No bar though, waybar is the default & I don't use it anymore.
+- No bar though, waybar is the default and I don't use it anymore.
 
 ## Autostart
 
-Everything important loads once:
+Everything loads once:
 
 - hyprpaper
 - mako
@@ -18,7 +18,7 @@ Everything important loads once:
 - cliphist + extra watchers
 - pavucontrol (hidden)
 - blueman
-- my own scripts for clipboard, whisper, screenshots, checkout the scripts directory at root
+- my own scripts for clipboard, whisper, screenshots, checkout the [scripts](/scripts/) directory.
 
 ## Keybind map
 
@@ -48,4 +48,3 @@ Everything important loads once:
 
 - terminals at 0.97
 - browsers, editors, obsidian at 0.9
-
