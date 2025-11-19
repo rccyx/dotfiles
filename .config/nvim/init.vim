@@ -63,7 +63,6 @@ Plug 'folke/tokyonight.nvim'
 Plug 'morhetz/gruvbox'
 Plug 'svrana/NeoSolarized.nvim'
 Plug 'rebelot/kanagawa.nvim'
-Plug 'nvim-lualine/lualine.nvim'
 
 " ----- Helper Plugins -----
 Plug 'nvim-lua/plenary.nvim'
@@ -143,83 +142,7 @@ EOF
 "                      PLUGIN CONFIG
 " ==========================================================
 set termguicolors
-set laststatus=3
-
-lua << EOF
--- rounded lualine bar, matching tmux style
-local ok, palettes = pcall(require, "catppuccin.palettes")
-local pal
-if ok and palettes and type(palettes.get_palette) == "function" then
-  pal = palettes.get_palette("mocha")
-else
-  pal = {
-    rosewater = "#f5e0dc", flamingo = "#f2cdcd", pink = "#f5c2e7", mauve = "#cba6f7",
-    red = "#f38ba8", maroon = "#eba0ac", peach = "#fab387", yellow = "#f9e2af",
-    green = "#a6e3a1", teal = "#94e2d5", sky = "#89dceb", sapphire = "#74c7ec",
-    blue = "#89b4fa", lavender = "#b4befe",
-    text = "#cdd6f4", subtext1 = "#bac2de", overlay0 = "#6c7086",
-    surface0 = "#313244", base = "#1e1e2e", mantle = "#181825", crust = "#11111b",
-  }
-end
-
-local bubbles_theme = {
-  normal = {
-    a = { fg = pal.crust, bg = pal.lavender, gui = "bold" },
-    b = { fg = pal.text,  bg = pal.surface0 },
-    c = { fg = pal.subtext1, bg = pal.base },
-  },
-  insert  = { a = { fg = pal.crust, bg = pal.green,   gui = "bold" } },
-  visual  = { a = { fg = pal.crust, bg = pal.mauve,   gui = "bold" } },
-  replace = { a = { fg = pal.crust, bg = pal.red,     gui = "bold" } },
-  command = { a = { fg = pal.crust, bg = pal.peach,   gui = "bold" } },
-  inactive = {
-    a = { fg = pal.overlay0, bg = pal.mantle },
-    b = { fg = pal.overlay0, bg = pal.mantle },
-    c = { fg = pal.overlay0, bg = pal.mantle },
-  },
-}
-
-require("lualine").setup({
-  options = {
-    theme = bubbles_theme,
-    icons_enabled = true,
-    component_separators = { left = "", right = "" },
-    section_separators   = { left = "", right = "" },
-    globalstatus = true,
-    disabled_filetypes = { "NERDTree", "packer" },
-  },
-  sections = {
-    lualine_a = { { "mode", separator = { left = "" }, right_padding = 2 } },
-    lualine_b = { "branch", "diff", "diagnostics" },
-    lualine_c = { {
-      "filename",
-      path = 0,
-      file_status = false,
-      newfile_status = false,
-      fmt = function(name)
-        local max = 15
-        if #name <= max then return name end
-        local ext = name:match("(%.[^%.]+)$") or ""
-        local keep = max - #ext - 1
-        if keep < 1 then return name:sub(1, max - 1) .. "…" end
-        return name:sub(1, keep) .. "…" .. ext
-      end,
-    } },
-    lualine_x = { "encoding", "fileformat", "filetype" },
-    lualine_y = { "progress" },
-    lualine_z = { { "location", separator = { right = "" }, left_padding = 2 } },
-  },
-  inactive_sections = {
-    lualine_a = { { "filename", separator = { left = "", right = "" } } },
-    lualine_b = {},
-    lualine_c = {},
-    lualine_x = {},
-    lualine_y = {},
-    lualine_z = {},
-  },
-  extensions = { "fzf", "quickfix", "fugitive" },
-})
-EOF
+set laststatus=0
 
 silent! nunmap <leader>bl
 nnoremap <silent> <leader>bl <cmd>Telescope buffers sort_lastused=true ignore_current_buffer=true<cr>
@@ -526,7 +449,7 @@ nnoremap <leader>fa :echo expand('%:p')<CR>
 nnoremap <leader>ft :echo expand('%:t')<CR>
 nnoremap <leader>fr :echo fnamemodify(expand('%'), ':.')<CR>
 nnoremap <leader>fy :let @+ = fnamemodify(expand('%'), ':.') \| echo 'yanked relative file path'<CR>
-nnoremap <leader>cd :lcd %:p:h<CR>
+nnoremap <leader>cd :lcd %:p	h<CR>
 nnoremap <leader>gr :execute 'cd ' . systemlist('git rev-parse --show-toplevel')[0]<CR>
 
 function! s:rel_to_git_root()
@@ -615,95 +538,5 @@ function! s:NewDirPrompt() abort
   call mkdir(path, 'p')
   echo 'created ' . path
 endfunction
-nnoremap <leader>nf :call <SID>NewFilePrompt()<CR>
-nnoremap <leader>nd :call <SID>NewDirPrompt()<CR>
-
-function! s:DeleteCurrentFileToTrash() abort
-  let f = expand('%:p')
-  if empty(f) || !filereadable(f) | echo 'no file on disk' | return | endif
-  if confirm('trash ' . f . '?', "&Yes\n&No", 2) != 1 | return | endif
-  if executable('trash-put')
-    call system(['trash-put', f])
-  elseif executable('gio')
-    call system(['gio','trash', f])
-  else
-    call delete(f)
-  endif
-  bdelete!
-endfunction
-nnoremap <leader>dd :call <SID>DeleteCurrentFileToTrash()<CR>
-
-function! s:RenameCurrentFile() abort
-  try
-    if exists('*CocActionAsync')
-      call CocActionAsync('runCommand','workspace.renameCurrentFile')
-      return
-    endif
-  catch /.*/
-  endtry
-  let old = expand('%:p')
-  let new = input('New path: ', old, 'file')
-  if empty(new) || new == old | return | endif
-  call mkdir(fnamemodify(new, ':h'), 'p')
-  execute 'saveas' fnameescape(new)
-  call delete(old)
-endfunction
-nnoremap <leader>mv :call <SID>RenameCurrentFile()<CR>
-
-nnoremap <leader>sr :lua require('spectre').open()<CR>
-nnoremap <leader>sw :lua require('spectre').open_visual({select_word=true})<CR>
-vnoremap <leader>sw :lua require('spectre').open_visual()<CR>
-nnoremap <leader>sf :lua require('spectre').open_file_search({select_word=true})<CR>
-
-xnoremap <C-c> "+y
-nnoremap <C-c> "+yy
-inoremap <C-c> <Esc>"+yy
-
-nnoremap <C-v> "+p
-xnoremap <C-v> "+p
-inoremap <C-v> <C-r>+
-cnoremap <C-v> <C-r>+
-
-set keymodel+=startsel
-
-autocmd BufNewFile,BufRead *.tsx set filetype=typescriptreact
-autocmd BufNewFile,BufRead *.jsx set filetype=javascriptreact
-
-autocmd BufWritePre * let currPos = getpos(".")
-autocmd BufWritePre * %s/\s\+$//e
-autocmd BufWritePre * %s/\n\+\%$//e
-autocmd BufWritePre * %s/\%$/\r/e
-autocmd BufWritePre *neomutt* %s/^--$/-- /e
-autocmd BufWritePre * cal cursor(currPos[1], currPos[2])
-
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-
-augroup TransparentBG
-  autocmd!
-  autocmd ColorScheme * lua ForceTransparent()
-augroup END
-
-if &diff
-    highlight! link DiffText MatchParen
-endif
-
-let s:hidden_all = 0
-function! ToggleHiddenAll()
-    if s:hidden_all == 0
-        let s:hidden_all = 1
-        set noshowmode
-        set noruler
-        set laststatus=0
-        set noshowcmd
-    else
-        let s:hidden_all = 0
-        set showmode
-        set ruler
-        set laststatus=3
-        set showcmd
-    endif
-endfunction
-nnoremap <leader>h :call ToggleHiddenAll()<CR>
-
-hi Normal guibg=NONE
+nnoremap <leader>nf :call <SID>NewFilePrompt
 
