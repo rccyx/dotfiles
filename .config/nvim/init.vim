@@ -61,7 +61,8 @@ Plug 'Mofiqul/dracula.nvim'
 Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 Plug 'folke/tokyonight.nvim'
 Plug 'morhetz/gruvbox'
-Plug 'svrana/neosolarized.nvim'
+Plug 'svrana/NeoSolarized.nvim'
+Plug 'rebelot/kanagawa.nvim'
 Plug 'nvim-lualine/lualine.nvim'
 
 " ----- Helper Plugins -----
@@ -124,9 +125,9 @@ Plug 'plasticboy/vim-markdown'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 " ----- Added: file ops + sudo + project replace -----
-Plug 'tpope/vim-eunuch'          " :Rename :Delete :Move :Mkdir
-Plug 'lambdalisue/suda.vim'      " w!! to write root-owned files
-Plug 'nvim-pack/nvim-spectre'    " ripgrep-powered project replace
+Plug 'tpope/vim-eunuch'
+Plug 'lambdalisue/suda.vim'
+Plug 'nvim-pack/nvim-spectre'
 
 call plug#end()
 
@@ -145,7 +146,7 @@ set termguicolors
 set laststatus=3
 
 lua << EOF
--- Catppuccin bubble lualine
+-- rounded lualine bar, matching tmux style
 local ok, palettes = pcall(require, "catppuccin.palettes")
 local pal
 if ok and palettes and type(palettes.get_palette) == "function" then
@@ -190,7 +191,11 @@ require("lualine").setup({
   sections = {
     lualine_a = { { "mode", separator = { left = "" }, right_padding = 2 } },
     lualine_b = { "branch", "diff", "diagnostics" },
-    lualine_c = { { "filename", path = 0, file_status = false, newfile_status = false,
+    lualine_c = { {
+      "filename",
+      path = 0,
+      file_status = false,
+      newfile_status = false,
       fmt = function(name)
         local max = 15
         if #name <= max then return name end
@@ -198,28 +203,26 @@ require("lualine").setup({
         local keep = max - #ext - 1
         if keep < 1 then return name:sub(1, max - 1) .. "…" end
         return name:sub(1, keep) .. "…" .. ext
-      end } },
+      end,
+    } },
     lualine_x = { "encoding", "fileformat", "filetype" },
     lualine_y = { "progress" },
     lualine_z = { { "location", separator = { right = "" }, left_padding = 2 } },
   },
-  inactive_sections = { lualine_a = { { "filename", separator = { left = "", right = "" } } } },
+  inactive_sections = {
+    lualine_a = { { "filename", separator = { left = "", right = "" } } },
+    lualine_b = {},
+    lualine_c = {},
+    lualine_x = {},
+    lualine_y = {},
+    lualine_z = {},
+  },
   extensions = { "fzf", "quickfix", "fugitive" },
-})
-EOF
-
-set laststatus=2
-
-lua << EOF
-require('lualine').setup({
-  options = { theme = 'auto', icons_enabled = true, component_separators = '', section_separators = '' },
-  extensions = { 'fzf', 'quickfix', 'fugitive' }
 })
 EOF
 
 silent! nunmap <leader>bl
 nnoremap <silent> <leader>bl <cmd>Telescope buffers sort_lastused=true ignore_current_buffer=true<cr>
-" REMOVED: nnoremap <silent> <leader>bp :BufferLinePick<CR>
 
 let g:ash_showtabline = 0
 function! ToggleBufferTabs()
@@ -338,7 +341,7 @@ telescope.setup({
       respect_gitignore = false,
       mappings = {
         ["n"] = { ["a"] = fb_actions.create, ["r"] = fb_actions.rename, ["d"] = fb_actions.remove, ["m"] = fb_actions.move, ["y"] = fb_actions.copy },
-        ["i"] = { ["<C-n>"] = fb_actions.create, ["<C-r>"] = fb_actions.rename, ["<C-d>"] = fb_actions.remove, ["<C-m"] = fb_actions.move, ["<C-y>"] = fb_actions.copy },
+        ["i"] = { ["<C-n>"] = fb_actions.create, ["<C-r>"] = fb_actions.rename, ["<C-d>"] = fb_actions.remove, ["<C-m>"] = fb_actions.move, ["<C-y>"] = fb_actions.copy },
       },
     },
   } or {},
@@ -348,10 +351,18 @@ EOF
 
 " ===== Theme =====
 lua << EOF
-require("catppuccin").setup({
-  flavour = "mocha",
-  integrations = { bufferline = true, treesitter = true, coc_nvim = true, nvimtree = true, native_lsp = { enabled = true } }
-})
+local function read_first_line(path)
+  local f = io.open(path, "r")
+  if not f then
+    return nil
+  end
+  local line = f:read("*l")
+  f:close()
+  if line == nil or line == "" then
+    return nil
+  end
+  return line
+end
 
 _G.ForceTransparent = function()
   local groups = {
@@ -365,35 +376,103 @@ _G.ForceTransparent = function()
     "ColorColumn",
     "WinSeparator",
   }
-
   for _, name in ipairs(groups) do
     vim.api.nvim_set_hl(0, name, { bg = "NONE" })
   end
 end
 
-vim.cmd.colorscheme("catppuccin")
+local config_dir = vim.fn.stdpath("config")
+local theme_alias_file = config_dir .. "/theme.txt"
+local themes_dir = config_dir .. "/themes"
+
+local alias = read_first_line(theme_alias_file)
+local scheme = nil
+
+if alias ~= nil then
+  local mapped = read_first_line(themes_dir .. "/" .. alias .. ".txt")
+  if mapped ~= nil and mapped ~= "" then
+    scheme = mapped
+  else
+    scheme = alias
+  end
+end
+
+if scheme == nil or scheme == "" then
+  scheme = "catppuccin"
+end
+
+if scheme == "neosolarized" or scheme == "NeoSolarized" then
+  scheme = "NeoSolarized"
+end
+
+if scheme == "kanagawa" then
+  scheme = "kanagawa-dragon"
+end
+
+local ok_catppuccin, catppuccin = pcall(require, "catppuccin")
+if ok_catppuccin then
+  catppuccin.setup({
+    flavour = "mocha",
+    integrations = {
+      bufferline = true,
+      treesitter = true,
+      coc_nvim = true,
+      nvimtree = true,
+      native_lsp = { enabled = true },
+    },
+  })
+end
+
+local ok_kanagawa, kanagawa = pcall(require, "kanagawa")
+if ok_kanagawa then
+  kanagawa.setup({})
+end
+
+if scheme == "gruvbox" then
+  vim.g.gruvbox_contrast_dark = "medium"
+  vim.g.gruvbox_invert_selection = 0
+end
+
+local ok_colorscheme = pcall(vim.cmd.colorscheme, scheme)
+if not ok_colorscheme then
+  pcall(vim.cmd.colorscheme, "catppuccin")
+end
+
 ForceTransparent()
 
-local themes = {
+local cycle_themes = {
   "catppuccin",
   "dracula",
   "gruvbox",
   "tokyonight",
-  "neosolarized",
+  "NeoSolarized",
+  "kanagawa-dragon",
 }
 
 local i = 1
 
 _G.CycleTheme = function()
-  i = i % #themes + 1
-  local t = themes[i]
-  vim.cmd("colorscheme " .. t)
-  ForceTransparent()
-  print("theme: " .. t)
+  i = i % #cycle_themes + 1
+  local t = cycle_themes[i]
+
+  if t == "neosolarized" then
+    t = "NeoSolarized"
+  end
+
+  if t == "kanagawa" then
+    t = "kanagawa-dragon"
+  end
+
+  local ok = pcall(vim.cmd.colorscheme, t)
+  if ok then
+    ForceTransparent()
+    print("theme: " .. t)
+  else
+    print("theme failed: " .. t)
+  end
 end
 EOF
 
-" Theme toggle
 nnoremap <leader>th :lua CycleTheme()<CR>
 
 " ==========================================================
@@ -404,7 +483,6 @@ silent! nunmap <C-u> | silent! vunmap <C-u> | silent! iunmap <C-u>
 silent! nunmap <C-z> | silent! vunmap <C-z> | silent! iunmap <C-z>
 silent! nunmap <C-s> | silent! vunmap <C-s> | silent! iunmap <C-s>
 silent! nunmap <C-q> | silent! vunmap <C-q> | silent! iunmap <C-q>
-" Ensure Ctrl+A is not mapped by this config
 silent! nunmap <C-a> | silent! vunmap <C-a> | silent! iunmap <C-a>
 
 nnoremap <C-z> u
@@ -438,7 +516,6 @@ function! CycleBufPrev()
 endfunction
 nnoremap <silent> <Tab>   :call CycleBufNext()<CR>
 nnoremap <silent> <S-Tab> :call CycleBufPrev()<CR>
-" REMOVED: nnoremap <silent> <leader>bp :BufferLinePick<CR>
 
 nnoremap <leader>bl :ls<CR>:b<Space>
 inoremap <silent> <C-x> <C-o>:bd<CR>
@@ -471,17 +548,14 @@ map <C-j> <C-w>j
 map <C-k> <C-w>k
 map <C-l> <C-w>l
 
-" Coc navigation
 nmap <leader>ac  <Plug>(coc-codeaction)
 nmap <leader>qf  <Plug>(coc-fix-current)
 nmap <silent> gd <Plug>(coc-definition)
-" Ctrl+A = jump back (reverse of Ctrl+D)
 nnoremap <C-a> <C-o>
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 nnoremap <C-d> <Plug>(coc-definition)
-" REMOVED: nnoremap <C-a> <C-o>
 nnoremap <silent> <C-r> <Plug>(coc-references)
 nmap <leader>rn  <Plug>(coc-rename)
 
@@ -489,7 +563,6 @@ map <leader>o :setlocal spell! spelllang=en_us<CR>
 nnoremap <leader>mi :call CocActionAsync('codeAction', '', ['source.addMissingImports.ts'])<CR>
 nnoremap <leader>oi :call CocActionAsync('runCommand', 'editor.action.organizeImport')<CR>
 
-" NERDTree tweaks
 let g:NERDTreeWinPos = 'left'
 let g:NERDTreeWinSize = 28
 let g:NERDTreeMinimalUI = 1
@@ -524,7 +597,6 @@ nnoremap S :%s//g<Left><Left>
 nnoremap <silent> <leader>r <cmd>Telescope live_grep<cr>
 nnoremap <silent> <leader>R <cmd>Telescope grep_string<cr>
 
-" ===== Added: fast file ops inside Neovim =====
 let g:suda_smart_edit = 1
 cnoreabbrev w!! SudaWrite
 
@@ -561,7 +633,6 @@ function! s:DeleteCurrentFileToTrash() abort
 endfunction
 nnoremap <leader>dd :call <SID>DeleteCurrentFileToTrash()<CR>
 
-" LSP file rename that updates TS/JS imports via tsserver
 function! s:RenameCurrentFile() abort
   try
     if exists('*CocActionAsync')
@@ -579,30 +650,22 @@ function! s:RenameCurrentFile() abort
 endfunction
 nnoremap <leader>mv :call <SID>RenameCurrentFile()<CR>
 
-" ===== Added: Spectre project replace =====
 nnoremap <leader>sr :lua require('spectre').open()<CR>
 nnoremap <leader>sw :lua require('spectre').open_visual({select_word=true})<CR>
 vnoremap <leader>sw :lua require('spectre').open_visual()<CR>
 nnoremap <leader>sf :lua require('spectre').open_file_search({select_word=true})<CR>
 
-" ===== VSCode-like copy/paste (system clipboard) =====
-" Copy: Ctrl+C copies selection; no selection copies current line
 xnoremap <C-c> "+y
 nnoremap <C-c> "+yy
 inoremap <C-c> <Esc>"+yy
 
-" Paste: Ctrl+V pastes from system clipboard in all modes
 nnoremap <C-v> "+p
 xnoremap <C-v> "+p
 inoremap <C-v> <C-r>+
 cnoremap <C-v> <C-r>+
 
-" Optional: enable shift-select behavior similar to editors
 set keymodel+=startsel
 
-" ==========================================================
-"                  AUTOCOMMANDS & FUNCTIONS
-" ==========================================================
 autocmd BufNewFile,BufRead *.tsx set filetype=typescriptreact
 autocmd BufNewFile,BufRead *.jsx set filetype=javascriptreact
 
@@ -636,13 +699,11 @@ function! ToggleHiddenAll()
         let s:hidden_all = 0
         set showmode
         set ruler
-        set laststatus=2
+        set laststatus=3
         set showcmd
     endif
 endfunction
 nnoremap <leader>h :call ToggleHiddenAll()<CR>
 
-" ==========================================================
-"                  MISC VISUAL SETTINGS
-" ==========================================================
 hi Normal guibg=NONE
+
