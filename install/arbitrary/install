@@ -1,0 +1,10 @@
+install_all() {
+  local dir="$HOME/.all"
+  for f in "$dir"/*; do
+    [ -f "$f" ] || continue
+    chmod +x "$f"
+    "$f" || echo "skipped: $f"
+  done
+}
+
+install_all
