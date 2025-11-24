@@ -32,7 +32,6 @@ chafa
 cliphist
 cmake
 cmake-extras
-code
 console-setup
 containerd.io
 coreutils
@@ -109,7 +108,6 @@ gnupg
 gnu-which
 gobject-introspection
 golang
-google-chrome-stable
 gpg
 grep
 grim
@@ -134,7 +132,6 @@ iputils-ping
 iw
 iwd
 jq
-keybase
 keyboard-configuration
 kitty
 kmod
@@ -450,7 +447,6 @@ slurp
 smartmontools
 speedtest-cli
 spirv-tools
-spotify-client
 sqv
 strace
 sudo
@@ -464,7 +460,6 @@ tar
 task-english
 task-laptop
 tasksel
-terraform
 thunar
 tmux
 traceroute
@@ -479,7 +474,6 @@ unzip
 usbutils
 util-linux
 util-linux-extra
-vault
 viewnior
 vim
 vim-common
