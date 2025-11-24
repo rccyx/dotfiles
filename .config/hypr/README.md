@@ -1,50 +1,100 @@
-# Hyprland
+# hyprland
+### launchers
+alt + return        -> kitty
+super + space       -> wofi
+print               -> shot-mac (your script)
+alt + l             -> kdenlive
+alt + o             -> obsidian
+alt + w             -> whisper toggle
+alt + s             -> spotify
+alt + e             -> vscode
+alt + c             -> cursor
+alt + f             -> nautilus
+alt + g             -> google chrome
+super + x           -> clip menu (clip-wofi)
+alt + shift + c     -> calendar webapp
+alt + shift + g     -> chatgpt webapp
+alt + shift + y     -> youtube webapp
+alt + shift + s     -> soundcloud webapp
 
-- SUPER is the main modifier
-- kitty is the terminal
-- wofi is the launcher
-- Chrome runs in app mode for “native” webapps
-- Dwindle layout everywhere
-- Rounded corners, subtle blur, clean borders
-- No bar though, waybar is the default and I don't use it anymore.
+### window control
+super + q           -> close window
+alt + f4            -> close window
+super + f           -> fullscreen
+super + v           -> toggle floating
+super + p           -> pseudo tile
+super + s           -> toggle split
 
-## Autostart
+### system launch
+mako, hyprpaper, swww, pavucontrol, blueman, cliphist watchers all run at startup through exec-once
 
-Everything loads once:
+### terminals (additional binds)
+alt + k             -> kitty
+alt + q             -> kitty
 
-- hyprpaper
-- mako
-- swww + waypaper
-- cliphist + extra watchers
-- pavucontrol (hidden)
-- blueman
-- my own scripts for clipboard, whisper, screenshots, checkout the [scripts](/scripts/) directory.
+### workspace navigation
+ctrl + alt + left   -> previous workspace
+ctrl + alt + right  -> next workspace
 
-## Keybind map
+### alt tab
+alt + tab           -> next window
+alt + shift + tab   -> previous window
 
-- ALT+Enter → kitty
-- SUPER+Space → wofi launcher
-- ALT+W/O/S/E/C/F/G → whisper, obsidian, spotify, code, cursor, files, chrome
-- ALT+SHIFT+(C/G/Y/S) → calendar, chatgpt, youtube, soundcloud
-- PRINT → screenshot
-- SUPER+X → clipboard picker, (@see scripts)
-- SUPER+(arrows) → focus
-- SUPER+SHIFT+(arrows) → move windows
-- CTRL+ALT+(arrows) → workspace nav
-- SUPER+numbers → workspaces
-- SUPER+CTRL+L → lock
+### focus movement
+super + left        -> focus left
+super + right       -> focus right
+super + up          -> focus up
+super + down        -> focus down
 
-## Style
+### move windows
+super + shift + left  -> move window left
+super + shift + right -> move window right
+super + shift + up    -> move window up
+super + shift + down  -> move window down
 
-- gaps_in 6
-- gaps_out 18
-- border 2px
-- white active border
-- catppuccin grey inactive
-- blur enabled
-- opacity tuning for browsers and terminals
+### numeric workspaces
+super + 1..0        -> switch to ws 1..10
 
-## Window Rules
+### azerty top row workspace moves
+super + ampersand    -> send window to ws 1
+super + eacute       -> send window to ws 2
+super + quotedbl     -> send window to ws 3
+super + apostrophe   -> send window to ws 4
+super + parenleft    -> send window to ws 5
+super + minus        -> send window to ws 6
+super + egrave       -> send window to ws 7
+super + underscore   -> send window to ws 8
+super + ccedilla     -> send window to ws 9
+super + agrave       -> send window to ws 10
 
-- terminals at 0.97
-- browsers, editors, obsidian at 0.9
+### clipboard picker
+super + c           -> cliphist picker via wofi
+
+### screenshots
+print               -> full screenshot saved in screenshots dir
+super + shift + s   -> region screenshot to swappy
+
+### volume
+audio raise         -> XF86AudioRaiseVolume
+audio lower         -> XF86AudioLowerVolume
+audio mute          -> XF86AudioMute
+mic mute            -> XF86AudioMicMute
+
+### brightness
+brightness up       -> XF86MonBrightnessUp
+brightness down     -> XF86MonBrightnessDown
+
+### lock
+super + ctrl + l    -> swaylock
+
+### mouse
+super + left drag   -> move window
+super + right drag  -> resize window
+
+### window rules
+kitty and alacritty opacity 0.97
+firefox, cursor, obsidian, code opacity override 0.9
+
+### special clipboard vault
+super + x           -> clipvault wofi
+
