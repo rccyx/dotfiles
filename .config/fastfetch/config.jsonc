@@ -1,129 +1,135 @@
 {
-  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
   "logo": {
-    "source": "debian",
-    "padding": {
-      "top": 5,
-      "right": 6
-    }
+    "type": "file",
+    "source": "/home/ashgw/.config/fastfetch/rccyx.txt",
+    "padding": { "top": 1, "right": 4 }
   },
+
   "modules": [
-    "break",
+    "separator",
+
     {
       "type": "custom",
-      "format": "\u001b[90m┌──────────────────────Hardware──────────────────────┐"
+      "format": "\u001b[90m────────────── Hardware ──────────────\u001b[0m"
     },
     {
       "type": "cpu",
-      "key": "│ ├",
-      "showPeCoreCount": true,
-      "keyColor": "green"
-    },
-    {
-      "type": "display",
-      "key": "│ ├󱄄",
-      "keyColor": "green"
-    },
-    {
-      "type": "disk",
-      "key": "│ ├󰋊",
-      "keyColor": "green"
+      "key": "CPU",
+      "keyColor": "white",
+      "showPeCoreCount": true
     },
     {
       "type": "memory",
-      "key": "│ ├",
-      "keyColor": "green"
+      "key": "RAM",
+      "keyColor": "white"
     },
     {
-      "type": "swap",
-      "key": "└ └󰓡 ",
-      "keyColor": "green"
+      "type": "disk",
+      "key": "Disk",
+      "keyColor": "white"
     },
     {
-      "type": "custom",
-      "format": "\u001b[90m└────────────────────────────────────────────────────┘"
+      "type": "gpu",
+      "key": "GPU",
+      "keyColor": "white"
     },
+    {
+      "type": "display",
+      "key": "Display",
+      "keyColor": "white"
+    },
+
     "break",
+
     {
       "type": "custom",
-      "format": "\u001b[90m┌──────────────────────Software──────────────────────┐"
+      "format": "\u001b[90m────────────── Software ──────────────\u001b[0m"
     },
     {
       "type": "os",
-      "key": "󰣇 OS",
-      "keyColor": "yellow"
+      "key": "OS",
+      "keyColor": "white"
     },
     {
       "type": "kernel",
-      "key": "│ ├",
-      "keyColor": "yellow"
+      "key": "Kernel",
+      "keyColor": "white"
     },
     {
       "type": "packages",
-      "key": "│ ├󰏖",
-      "keyColor": "yellow"
+      "key": "Packages",
+      "keyColor": "white"
     },
     {
       "type": "shell",
-      "key": "└ └",
-      "keyColor": "yellow"
-    },
-    "break",
-    {
-      "type": "de",
-      "key": " DE",
-      "keyColor": "blue"
+      "key": "Shell",
+      "keyColor": "white"
     },
     {
       "type": "wm",
-      "key": "│ ├",
-      "keyColor": "blue"
+      "key": "WM",
+      "keyColor": "white"
     },
     {
-      "type": "wmtheme",
-      "key": "│ ├󰉼",
-      "keyColor": "blue"
-    },
-    {
-      "type": "cursor",
-      "key": "│ ├",
-      "keyColor": "blue"
-    },
-    {
-      "type": "terminalfont",
-      "key": "│ ├",
-      "keyColor": "blue"
+      "type": "de",
+      "key": "DE",
+      "keyColor": "white"
     },
     {
       "type": "terminal",
-      "key": "└ └",
-      "keyColor": "blue"
+      "key": "Terminal",
+      "keyColor": "white"
     },
-    {
-      "type": "custom",
-      "format": "\u001b[90m└────────────────────────────────────────────────────┘"
-    },
+
     "break",
+
     {
       "type": "custom",
-      "format": "\u001b[90m┌────────────────────Uptime / Age────────────────────┐"
+      "format": "\u001b[90m────────────── Theme ─────────────────\u001b[0m"
+    },
+    {
+      "type": "theme",
+      "key": "Theme",
+      "keyColor": "white"
+    },
+    {
+      "type": "font",
+      "key": "Fonts",
+      "keyColor": "white"
+    },
+    {
+      "type": "icons",
+      "key": "Icons",
+      "keyColor": "white"
+    },
+    {
+      "type": "cursor",
+      "key": "Cursor",
+      "keyColor": "white"
+    },
+    {
+      "type": "terminalfont",
+      "key": "Term font",
+      "keyColor": "white"
+    },
+
+    "break",
+
+    {
+      "type": "custom",
+      "format": "\u001b[90m──────────── Uptime / Age ────────────\u001b[0m"
     },
     {
       "type": "command",
-      "key": "  OS Age ",
-      "keyColor": "magenta",
-      "text": "birth_install=$(stat -c %W /); current=$(date +%s); time_progression=$((current - birth_install)); days_difference=$((time_progression / 86400)); echo $days_difference days"
+      "key": "OS Age",
+      "keyColor": "white",
+      "text": "birth=$(stat -c %W /); now=$(date +%s); days=$(( (now-birth)/86400 )); echo ${days}d"
     },
     {
       "type": "uptime",
-      "key": "  Uptime ",
-      "keyColor": "magenta"
-    },
-    {
-      "type": "custom",
-      "format": "\u001b[90m└────────────────────────────────────────────────────┘"
-    },
-    "break"
+      "key": "Uptime",
+      "keyColor": "white"
+    }
   ]
 }
 

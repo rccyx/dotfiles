@@ -1,0 +1,57 @@
+{
+  // Clean, readable, no gimmicks
+  "logo": {
+    "type": "builtin",
+    "source": "debian_small",        // swap to "nix-default" if you want that exact look
+    "padding": { "top": 1, "right": 2, "bottom": 0, "left": 0 }
+  },
+
+  "display": {
+    "colorKeys": "red",
+    "colorTitle": "white",
+    "keyWidth": 13,
+    "separator": ":",
+    "showSeparator": true
+  },
+
+  // Make bars look nice under CPU and RAM
+  "bar": {
+    "length": 28,
+    "fill": "█",
+    "empty": "░",
+    "delim": " "
+  },
+
+  "modules": [
+    { "type": "title" },
+
+    { "type": "custom", "text": "┌─ Hardware ─────────────────────────────┐" },
+    { "type": "cpu", "key": "CPU", "freq": true, "temp": false, "percent": true, "bar": true },
+    { "type": "memory", "key": "RAM", "unit": "GiB", "bar": true },
+    { "type": "disk", "key": "Disk", "folders": [ "/" ], "bar": true },
+    { "type": "display", "key": "Display", "compactType": true },
+    { "type": "battery", "key": "Battery", "compact": true, "hideWhenEmpty": true },
+    { "type": "custom", "text": "└────────────────────────────────────────┘" },
+
+    { "type": "custom", "text": "┌─ Software ────────────────────────────┐" },
+    { "type": "os", "key": "OS" },
+    { "type": "kernel", "key": "Kernel" },
+    { "type": "wm", "key": "WM" },
+    { "type": "de", "key": "DE", "hideEmpty": true },
+    { "type": "shell", "key": "Shell" },
+    { "type": "terminal", "key": "Terminal" },
+    { "type": "packages", "key": "Packages", "managers": [ "dpkg", "nix-user" ] },
+    { "type": "custom", "text": "└────────────────────────────────────────┘" },
+
+    { "type": "custom", "text": "┌─ Theme ───────────────────────────────┐" },
+    { "type": "theme", "key": "Theme" },
+    { "type": "font", "key": "Fonts" },
+    { "type": "icons", "key": "Icons", "hideEmpty": true },
+    { "type": "cursor", "key": "Cursor", "hideEmpty": true },
+    { "type": "custom", "text": "└────────────────────────────────────────┘" },
+
+    { "type": "custom", "text": "┌─ Uptime ──────────────────────────────┐" },
+    { "type": "uptime", "key": "Uptime" },
+    { "type": "custom", "text": "└────────────────────────────────────────┘" }
+  ]
+}
