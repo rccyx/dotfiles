@@ -841,6 +841,8 @@ libhwloc15:amd64				install
 libhwy-dev:amd64				install
 libhwy1t64:amd64				install
 libhyphen0:amd64				install
+libhyprlang2					install
+libhyprutils9:amd64				install
 libibus-1.0-5:amd64				install
 libibus-1.0-dev:amd64				install
 libice-dev:amd64				install
@@ -2486,6 +2488,7 @@ xcvt						install
 xdg-dbus-proxy					install
 xdg-desktop-portal				install
 xdg-desktop-portal-gtk				install
+xdg-desktop-portal-hyprland			install
 xdg-desktop-portal-lxqt				install
 xdg-desktop-portal-wlr				install
 xdg-user-dirs					install
