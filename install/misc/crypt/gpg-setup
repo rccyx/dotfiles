@@ -11,7 +11,7 @@ GPG_PRIVATE_KEY_ID=79821E0224D34EC4969FF6A8E5168EE090AE80D0
 pip install -U pip
 pip install litecrypt  # I call this self  sustainability
 
-git clone git@github.com:AshGw/.keys.git ~/.keys
+git clone git@github.com:rccyx/.keys.git ~/.keys
 
 echo -n "Enter your AES-256 key: "
 read -s KEY1
@@ -32,7 +32,7 @@ echo "Decrypting the GPG key. The process might take some time; don't alter the 
 cd  $KEY_DIR
 $PYTHON -m  dec
 cd
-curl -o "$GIT_CONFIG_FILE" https://raw.githubusercontent.com/AshGw/dotfiles/main/other/.gitconfig/.gitconfig-gpg
+curl -o "$GIT_CONFIG_FILE" https://raw.githubusercontent.com/rccyx/dotfiles/main/install/misc/.gitconfig/.gitconfig-gpg
 export GPG_TTY=$(tty)
 echo "export GPG_TTY=$(tty)" >> ~/.zshrc
 

@@ -1,7 +1,7 @@
 [user]
     email = oss@rccyx.com
     name = rccyx
-    # this signs with SSH, to sign with GPG, @see {@link http://github.com/rccyx/dotfiles/blob/main/other/.gitconfig/.gitconfig-gpg }
+    # this signs with SSH, to sign with GPG, @see {@link http://github.com/rccyx/dotfiles/blob/main/install/misc/.gitconfig/.gitconfig-gpg }
     signingkey = /home/rccyx/.ssh/github.pub
 
 [gpg]
