@@ -14,10 +14,6 @@
     path = zshfuncs
   	url = https://github.com/rccyx/zshfuncs.git
 
-[submodule ".packages"]
-    path = .packages
-	url = https://github.com/rccyx/.packages.git
-
 [submodule ".cursor"]
     path = .cursor
 	url = https://github.com/rccyx/.cursor.git
