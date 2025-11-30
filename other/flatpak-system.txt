@@ -1,4 +1,0 @@
-com.github.PintaProject.Pinta	flathub
-com.mattjakeman.ExtensionManager	flathub
-net.displaycal.DisplayCAL	flathub
-org.gnome.Builder	flathub

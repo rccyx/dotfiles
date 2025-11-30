@@ -1,2 +1,0 @@
-sudo xargs -a apt-installed.txt -r apt install -y
-# xargs -a cargo-crates.txt -r cargo install

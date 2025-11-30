@@ -1,4 +1,0 @@
-/home/ashgw/go
-
-linux
-amd64

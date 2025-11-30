@@ -1,5 +1,0 @@
-graphite-cli
-eslint
-prettier
-ts-node
-typescript
