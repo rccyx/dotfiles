@@ -1,0 +1,33 @@
+{
+  "tabnine.experimentalAutoImports": true,
+  "workbench.colorTheme": "Dobri Next -A00- Black",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "glassit.alpha": 210,
+  "editor.tabSize": 2,
+  "editor.hover.delay": 100,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "jinno.lastInstallPageOpened": 1723944102325,
+  "jinno.token": "e213239a46fb2d5ac97b75c7f4d578aa530021af9d1ab7ea3d8acc2986595a6c",
+  "jinno.chromeExtInstalled": true,
+  "jinno.email": {},
+  "explorer.confirmDragAndDrop": false,
+  "window.menuBarVisibility": "hidden",
+  "explorer.confirmDelete": false,
+  "terminal.integrated.env.linux": {},
+  "console-ninja.featureSet": "Community",
+  "sherlock.userId": "1047b6b3-302f-4014-972d-3c47aa952b74",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "window.titleBarStyle": "custom",
+  "window.contextmenuMode": "classic",
+  "githubPullRequests.pullBranch": "never",
+  "spellright.documentTypes": ["latex"],
+  "cursor.cpp.disabledLanguages": ["plaintext", "markdown", "scminput"],
+  "github.copilot.enable": {
+    "*": false,
+    "plaintext": false,
+    "markdown": false,
+    "scminput": false
+  },
+  "redhat.telemetry.enabled": false
+}

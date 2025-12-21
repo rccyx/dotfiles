@@ -1,0 +1,17 @@
+# Minimal, fast, fuzzy drun menu
+show=drun
+prompt=Run
+matching=fuzzy
+insensitive=true
+allow_images=true
+allow_markup=true
+image_size=22
+columns=1
+width=720
+height=420
+location=center
+orientation=vertical
+halign=center
+hide_scroll=true
+term=kitty
+

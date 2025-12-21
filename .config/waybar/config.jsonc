@@ -1,0 +1,115 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 30,
+  "margin-top": 6,
+  "margin-left": 8,
+  "margin-right": 8,
+  "gtk-layer-shell": true,
+
+  "modules-left": ["hyprland/workspaces", "clock"],
+  "modules-center": ["window"],
+  "modules-right": ["tray", "cpu", "memory", "custom/cpu_temp", "backlight", "pulseaudio", "bluetooth", "network", "battery"],
+
+  "hyprland/workspaces": {
+    "on-click": "hyprctl dispatch workspace {id}",
+    "on-scroll-up": "hyprctl dispatch workspace m+1",
+    "on-scroll-down": "hyprctl dispatch workspace m-1",
+    "persistent_workspaces": { "*": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
+    "format": "{icon}",
+    "format-icons": { "default": "", "active": "", "urgent": "" },
+    "icon-size": 14
+  },
+
+  "window": {
+    "format": "{title}",
+    "max-length": 90,
+    "separate-outputs": true,
+    "rewrite": {
+      "^(.*) - Mozilla Firefox$": "$1",
+      "^(.*) - Visual Studio Code$": "$1"
+    }
+  },
+
+  "clock": {
+    "interval": 1,
+    "format": "  {:%a %d  %H:%M}",
+    "tooltip": false
+  },
+
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-muted": "  0%",
+    "format-icons": { "default": ["", "", ""] },
+    "scroll-step": 5,
+    "on-click": "pamixer -t",
+    "on-scroll-up": "pamixer -i 5",
+    "on-scroll-down": "pamixer -d 5"
+  },
+
+  "backlight": {
+    "format": " {percent}%",
+    "on-scroll-up": "brightnessctl set +5%",
+    "on-scroll-down": "brightnessctl set 5%-"
+  },
+
+  "battery": {
+    "states": { "warning": 0.25, "critical": 0.10 },
+    "format": "{icon} {capacity}%",
+    "format-charging": " {capacity}%",
+    "format-plugged": " {capacity}%",
+    "format-icons": ["", "", "", "", ""],
+    "interval": 10,
+    "tooltip": false
+  },
+
+  "network": {
+    "interval": 2,
+    "format-wifi": "{icon} {signalStrength}%",
+    "format-ethernet": "󰈀",
+    "format-disconnected": "󰤭  Offline",
+    "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
+    "tooltip-format-wifi": "{essid}\n{ipaddr} via {gwaddr}\n{frequency} MHz",
+    "tooltip-format-ethernet": "{ifname}\n{ipaddr} via {gwaddr}",
+    "tooltip-format-disconnected": "No network",
+    "on-click": "nm-connection-editor || true"
+  },
+
+  "bluetooth": {
+    "format": "{icon}",
+    "format-connected": "󰂯",
+    "format-disconnected": "󰂲",
+    "format-disabled": "󰂲",
+    "on-click": "blueman-manager || blueberry || true",
+    "tooltip-format": "Bluetooth: {status}\n{device_alias}"
+  },
+
+  "cpu": {
+    "interval": 1,
+    "format": " {usage}%",
+    "tooltip": false,
+    "on-click": "kitty -e btop"
+  },
+
+  "memory": {
+    "interval": 2,
+    "format": " {used:0.0f}G",
+    "tooltip": false,
+    "on-click": "kitty -e btop"
+  },
+
+  // replaced temperature module with a custom exec that runs your script
+  "custom/cpu_temp": {
+    "exec": "/home/rccyx/.local/bin/cpu-temp",
+    "interval": 2,
+    "format": " {}°C",
+    "tooltip": false,
+    "on-click": "kitty -e btop"
+  },
+
+  "tray": {
+    "icon-size": 16,
+    "spacing": 8
+  }
+}
+

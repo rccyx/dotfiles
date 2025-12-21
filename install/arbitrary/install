@@ -1,0 +1,10 @@
+install_all() {
+  local self="$(realpath "./install")"
+  for f in ./*; do
+    [ -f "$f" ] || continue
+    [ "$f" = "$self" ] && continue
+    chmod +x "$f"
+    "$f" || echo "skipped: $f"
+  done
+}
+install_all

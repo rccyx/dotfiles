@@ -1,0 +1,10 @@
+# sets up GPG
+
+TEMP_FILE=gpg-setup978523815487958645.sh
+export PIP_BREAK_SYSTEM_PACKAGES=1
+curl -L https://raw.githubusercontent.com/AshGw/dotfiles/main/other/crypt/gpg-setup -o /tmp/$TEMP_FILE
+bash /tmp/$TEMP_FILE
+rm /tmp/$TEMP_FILE
+### encrypted personal files import
+git clone git@github.com:AshGw/personal.git ~/personal
+###

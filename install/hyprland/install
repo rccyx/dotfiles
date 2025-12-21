@@ -1,0 +1,227 @@
+
+#!/usr/bin/env bash
+# Hyprland minimal installer for Debian Trixie/Sid (idempotent, lean)
+# - scanner: main, hyprutils: v0.8.3, glaze: v4.4.3 (fallback main), aquamarine: v0.9.3, Hyprland: v0.49.0
+
+set -Eeuo pipefail
+OK="$(tput setaf 2)✓$(tput sgr0)"; ERR="$(tput setaf 1)✗$(tput sgr0)"; NOTE="$(tput setaf 3)!$(tput sgr0)"; INF="$(tput setaf 4)i$(tput sgr0)"
+
+[[ $EUID -eq 0 ]] && { echo "$ERR Don't run as root."; exit 1; }
+grep -q 'ID=debian' /etc/os-release || { echo "$ERR Debian only."; exit 1; }
+. /etc/os-release
+if [[ "$VERSION_CODENAME" != "trixie" && "$VERSION_CODENAME" != "sid" && "$VERSION_CODENAME" != "unstable" ]]; then
+  echo "$NOTE Target is Debian Trixie/Sid. Detected: $PRETTY_NAME"
+  [[ "${FORCE_ANY:-0}" = "1" ]] || { echo "Set FORCE_ANY=1 to override."; exit 1; }
+fi
+
+mkdir -p Install-Logs
+LOG="Install-Logs/hyprland-install-$(date +%Y%m%d-%H%M%S).log"
+ABSLOG="$PWD/$LOG"
+echo "== $(date -Iseconds) start ==" | tee -a "$LOG"
+trap 'echo "'"$ERR"' Failed on line $LINENO. See $ABSLOG" | tee -a "$ABSLOG"' ERR
+
+export DEBIAN_FRONTEND=noninteractive
+export APT_LISTCHANGES_FRONTEND=none
+
+# ---------- helpers ----------
+pkg_installed(){ dpkg-query -W -f='${Status}\n' "$1" 2>/dev/null | grep -q "install ok installed"; }
+pkg_available(){ apt-cache policy "$1" 2>/dev/null | awk '/Candidate:/{print $2}' | grep -vq "(none)"; }
+need_pkgs(){ local p; for p in "$@"; do pkg_installed "$p" || echo "$p"; done; }
+ver_ge(){ dpkg --compare-versions "$1" ge "$2"; }
+
+wait_for_apt_lock(){
+  local tries=120
+  while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 \
+     || fuser /var/lib/apt/lists/lock >/dev/null 2>&1 \
+     || fuser /var/cache/apt/archives/lock >/dev/null 2>&1; do
+    echo "$INF Waiting for apt locks..." | tee -a "$ABSLOG"; sleep 1
+    ((tries--)) || { echo "$ERR Timeout waiting for apt locks" | tee -a "$ABSLOG"; return 1; }
+  done
+}
+apt_safe(){ wait_for_apt_lock; sudo -E "$@" 2>&1 | tee -a "$ABSLOG"; }
+apt_install_missing(){
+  local missing=() p
+  while read -r p; do [[ -n $p ]] && missing+=("$p"); done < <(need_pkgs "$@")
+  if ((${#missing[@]})); then
+    echo "$INF Installing: ${missing[*]}" | tee -a "$ABSLOG"
+    apt_safe apt-get update
+    sudo dpkg --configure -a 2>&1 | tee -a "$ABSLOG" || true
+    apt_safe apt-get -o Dpkg::Options::=--force-confnew -y install "${missing[@]}"
+    echo "$OK Packages installed" | tee -a "$ABSLOG"
+  else
+    echo "$OK All requested packages already present" | tee -a "$ABSLOG"
+  fi
+}
+
+git_build_install(){
+  # $1=url  $2=ref (branch/tag or empty for default)  [$3=extra cmake args]
+  local url="$1" ref="${2:-}" extra="${3:-}" name; name="$(basename "${url%.git}")"
+  rm -rf "$name" 2>/dev/null || true
+  echo "$INF Cloning $name (${ref:-main})" | tee -a "$ABSLOG"
+  if [[ -n "$ref" ]]; then
+    if ! git clone --recursive -b "$ref" "$url" 2>&1 | tee -a "$ABSLOG"; then
+      echo "$NOTE Tag/branch $ref missing; falling back to default branch." | tee -a "$ABSLOG"
+      git clone --recursive "$url" 2>&1 | tee -a "$ABSLOG"
+    fi
+  else
+    git clone --recursive "$url" 2>&1 | tee -a "$ABSLOG"
+  fi
+  pushd "$name" >/dev/null
+  echo "$INF Building $name" | tee -a "$ABSLOG"
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr $extra -B build 2>&1 | tee -a "$ABSLOG"
+  cmake --build build -j"$(nproc 2>/dev/null || getconf NPROCESSORS_CONF)" 2>&1 | tee -a "$ABSLOG"
+  sudo cmake --install build 2>&1 | tee -a "$ABSLOG"
+  sudo ldconfig
+  popd >/dev/null
+  echo "$OK $name installed" | tee -a "$ABSLOG"
+}
+
+# ---------- pause unattended-upgrades ----------
+systemctl is-enabled --quiet unattended-upgrades 2>/dev/null && { echo "$NOTE Pausing unattended-upgrades" | tee -a "$ABSLOG"; sudo systemctl stop unattended-upgrades || true; }
+
+# ---------- deps ----------
+BUILD_DEPS=(
+  build-essential cmake cmake-extras git pkg-config meson ninja-build
+  libcairo2-dev libdisplay-info-dev libdrm-dev libegl-dev libegl1-mesa-dev
+  libgbm-dev libgles2-mesa-dev libglvnd-dev libinput-dev libliftoff-dev
+  libpango1.0-dev libpixman-1-dev libseat-dev libsystemd-dev libtomlplusplus-dev
+  libvulkan-dev libwayland-dev wayland-protocols libxkbcommon-dev libxkbcommon-x11-dev
+  libpugixml-dev libudis86-dev libxxhash-dev libxcursor-dev libxcb-errors-dev libxcb-cursor-dev
+  xwayland
+)
+RUNTIME_DEPS=( pipewire wireplumber wl-clipboard grim slurp xdg-desktop-portal polkit-kde-agent-1 kitty wofi thunar hwdata )
+
+echo "$INF Ensuring build deps..." | tee -a "$ABSLOG";  apt_install_missing "${BUILD_DEPS[@]}"
+echo "$INF Ensuring runtime deps..." | tee -a "$ABSLOG"; apt_install_missing "${RUNTIME_DEPS[@]}"
+
+# Prefer Hypr portal if available
+if pkg_available xdg-desktop-portal-hyprland; then
+  apt_install_missing xdg-desktop-portal-hyprland
+else
+  echo "$NOTE xdg-desktop-portal-hyprland not in repo; using -wlr." | tee -a "$ABSLOG"
+  apt_install_missing xdg-desktop-portal-wlr
+fi
+
+# ---------- purge (non-fatal) ----------
+purge_if_present(){
+  local p
+  for p in "$@"; do
+    if pkg_installed "$p"; then
+      echo "$NOTE Purging $p" | tee -a "$ABSLOG"
+      apt_safe apt-get -y purge "$p" || echo "$NOTE purge of $p returned non-zero; continuing." | tee -a "$ABSLOG"
+    fi
+  done
+  apt_safe apt-get -y autoremove || true
+  apt_safe apt-get -y -f install || true
+}
+echo "$INF Removing conflicting Hypr packages (if installed)..." | tee -a "$ABSLOG"
+purge_if_present hyprland hyprctl hyprpm xdg-desktop-portal-hyprland \
+  hyprwayland-scanner hyprland-protocols libhyprutils-dev libhyprutils0 \
+  libaquamarine-dev aquamarine hypridle hyprlock hyprpolkitagent hyprlang
+sudo rm -rf /usr/local/include/hypr* /usr/local/include/aquamarine* /usr/local/lib/libaquamarine* /usr/local/lib/cmake/hypr* 2>/dev/null || true
+sudo ldconfig
+
+# ---------- hyprwayland-scanner (main) ----------
+echo "$INF Building hyprwayland-scanner (main)" | tee -a "$ABSLOG"
+git_build_install "https://github.com/hyprwm/hyprwayland-scanner.git" ""
+
+# ---------- hyprutils (v0.8.3) ----------
+if pkg-config --exists hyprutils 2>/dev/null && ver_ge "$(pkg-config --modversion hyprutils || echo 0)" "0.8.0"; then
+  echo "$OK hyprutils present" | tee -a "$ABSLOG"
+else
+  echo "$INF Building hyprutils v0.8.3" | tee -a "$ABSLOG"
+  git_build_install "https://github.com/hyprwm/hyprutils.git" "v0.8.3"
+fi
+
+# ---------- glaze (lib) ----------
+ensure_glaze(){
+  # Try apt first
+  if pkg_available libglaze-dev; then
+    echo "$INF Installing libglaze-dev from apt" | tee -a "$ABSLOG"
+    apt_install_missing libglaze-dev
+  fi
+  # Detect via CMake config or headers
+  if [[ -d /usr/lib/cmake/glaze || -d /usr/lib/x86_64-linux-gnu/cmake/glaze || -d /usr/include/glaze ]]; then
+    echo "$OK glaze headers/config found" | tee -a "$ABSLOG"; return 0
+  fi
+  # Build from source (tag v4.4.3, fallback to main)
+  echo "$NOTE Building glaze from source" | tee -a "$ABSLOG"
+  git_build_install "https://github.com/stephenberry/glaze.git" "v4.4.3"
+  # If the tag didn't exist, git_build_install already fell back to main.
+  if [[ ! -d /usr/include/glaze && ! -d /usr/lib*/cmake/glaze* ]]; then
+    echo "$ERR glaze did not install correctly"; exit 1
+  fi
+}
+ensure_glaze
+
+# ---------- aquamarine (v0.9.3) ----------
+if pkg-config --exists aquamarine 2>/dev/null && ver_ge "$(pkg-config --modversion aquamarine || echo 0)" "0.8.0"; then
+  echo "$OK aquamarine present" | tee -a "$ABSLOG"
+else
+  echo "$INF Building aquamarine v0.9.3" | tee -a "$ABSLOG"
+  git_build_install "https://github.com/hyprwm/aquamarine.git" "v0.9.3"
+fi
+
+# ---------- NVIDIA (optional; auto-skip) ----------
+if lspci | grep -qi nvidia; then
+  echo "$NOTE NVIDIA GPU detected. Set AUTO_NVIDIA=1 to auto-configure." | tee -a "$ABSLOG"
+  if [[ "${AUTO_NVIDIA:-0}" = "1" ]]; then
+    apt_install_missing nvidia-driver libnvidia-egl-wayland1
+    sudo install -Dm644 /dev/stdin /etc/modprobe.d/nvidia.conf <<'EOF'
+options nvidia-drm modeset=1
+options nvidia NVreg_PreserveVideoMemoryAllocations=1
+EOF
+    ensure_flag(){ local flag="$1" f="/etc/default/grub"; grep -qE "GRUB_CMDLINE_LINUX=.*\b${flag}\b" "$f" || sudo sed -i "s/^GRUB_CMDLINE_LINUX=\"/GRUB_CMDLINE_LINUX=\"${flag} /" "$f"; }
+    ensure_flag "rd.driver.blacklist=nouveau"; ensure_flag "modprobe.blacklist=nouveau"; ensure_flag "nvidia-drm.modeset=1"
+    apt_safe update-grub || true
+  fi
+fi
+
+# ---------- Hyprland (v0.49.0) ----------
+HYPRLAND_VERSION="${HYPRLAND_VERSION:-v0.49.0}"
+current=""
+if command -v Hyprland >/dev/null 2>&1; then current="$(Hyprland -v 2>/dev/null | sed -nE 's/.*v([0-9]+\.[0-9]+\.[0-9]+).*/v\1/p' || true)"; fi
+REBUILD=false; [[ -z "$current" ]] && REBUILD=true
+[[ -n "$current" && "$current" != "$HYPRLAND_VERSION" ]] && REBUILD=true
+if $REBUILD; then
+  echo "$INF Building Hyprland $HYPRLAND_VERSION" | tee -a "$ABSLOG"
+  rm -rf Hyprland 2>/dev/null || true
+  git clone --recursive -b "$HYPRLAND_VERSION" https://github.com/hyprwm/Hyprland 2>&1 | tee -a "$ABSLOG"
+  pushd Hyprland >/dev/null
+  meson setup build --prefix=/usr
+  ninja -C build
+  sudo ninja -C build install
+  popd >/dev/null
+  echo "$OK Hyprland installed" | tee -a "$ABSLOG"
+else
+  echo "$OK Hyprland $current already installed - skipping build" | tee -a "$ABSLOG"
+fi
+
+# ---------- session entry ----------
+HYPR_BIN="$(command -v Hyprland || true)"
+if [[ -n "$HYPR_BIN" && ! -f /usr/share/wayland-sessions/hyprland.desktop ]]; then
+  echo "$INF Installing session file" | tee -a "$ABSLOG"
+  sudo install -Dm644 /dev/stdin /usr/share/wayland-sessions/hyprland.desktop <<EOF
+[Desktop Entry]
+Name=Hyprland
+Comment=An independent Wayland compositor
+Exec=${HYPR_BIN}
+Type=WaylandSession
+EOF
+fi
+
+# ---------- seat/logind ----------
+if systemctl is-active --quiet systemd-logind.service; then
+  systemctl is-enabled --quiet seatd.service 2>/dev/null && { echo "$NOTE Disabling seatd (logind active)"; sudo systemctl disable --now seatd.service || true; }
+else
+  if systemctl list-unit-files | grep -q '^seatd.service'; then
+    echo "$INF Enabling seatd"; sudo systemctl enable --now seatd.service || true
+    for grp in seat input; do getent group "$grp" >/dev/null && ! id -nG "$USER" | grep -qw "$grp" && sudo usermod -aG "$grp" "$USER" || true; done
+  fi
+fi
+
+# ---------- wrap ----------
+systemctl is-enabled --quiet unattended-upgrades 2>/dev/null && sudo systemctl start unattended-upgrades || true
+echo "$OK Done. Log: $ABSLOG"
+echo "From a TTY: Hyprland   (or pick it in your greeter)"
+

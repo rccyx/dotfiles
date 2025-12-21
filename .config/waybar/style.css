@@ -1,0 +1,79 @@
+@define-color bg rgba(26,27,38,0.80);
+@define-color bg-alt rgba(41,42,56,0.80);
+@define-color fg #c0caf5;
+@define-color mute #565f89;
+@define-color blue #7aa2f7;
+@define-color cyan #7dcfff;
+@define-color green #9ece6a;
+@define-color yellow #e0af68;
+@define-color red #f7768e;
+@define-color magenta #bb9af7;
+
+* {
+  font-family: "Iosevka Nerd Font", "HurmitNerdFont", monospace;
+  font-size: 12px;
+  border: none;
+  color: @fg;
+}
+
+window#waybar {
+  background: @bg;
+  border-radius: 12px;
+  padding: 6px 10px;
+}
+
+/* Workspace pills */
+#workspaces button {
+  padding: 0 8px;
+  margin: 0 3px;
+  background: transparent;
+  color: @mute;
+  transition: background 120ms ease, color 120ms ease, transform 120ms ease;
+}
+#workspaces button:hover {
+  color: @fg;
+  background: @bg-alt;
+  border-radius: 10px;
+}
+#workspaces button.active {
+  color: @fg;
+  background: @bg-alt;
+  border-radius: 10px;
+}
+#workspaces button.urgent {
+  color: @bg;
+  background: @red;
+}
+
+/* Module colors */
+#window        { color: @fg; }
+#clock         { color: @blue; }
+#pulseaudio    { color: @cyan; }
+#backlight     { color: @yellow; }
+#battery       { color: @green; }
+#battery.warning  { color: @yellow; }
+#battery.critical { color: @red; }
+#network       { color: @magenta; }
+#bluetooth     { color: @cyan; }    /* slick BT glyph */
+#cpu           { color: @green; }
+#memory        { color: @magenta; }
+#temperature   { color: @cyan; }
+#tray > *      { padding: 0 6px; }
+
+/* Compact, consistent pill hitboxes */
+#cpu, #memory, #temperature, #backlight, #pulseaudio, #bluetooth, #network, #battery, #clock, #window, #workspaces, #tray {
+  padding: 0 8px;
+  margin: 0 4px;
+  background: transparent;
+  border-radius: 10px;
+  transition: background 120ms ease;
+}
+#cpu:hover, #memory:hover, #temperature:hover, #backlight:hover, #pulseaudio:hover, #bluetooth:hover, #network:hover, #battery:hover, #clock:hover, #window:hover {
+  background: @bg-alt;
+}
+
+/* Keep tray icons aligned */
+#tray {
+  margin-right: 2px;
+}
+

@@ -1,0 +1,169 @@
+#!/bin/bash
+#
+# Minimal Hyprland uninstaller for Debian Trixie/Sid
+#
+
+set -e
+
+# Colors for better readability
+OK="$(tput setaf 2)✓$(tput sgr0)"
+ERROR="$(tput setaf 1)✗$(tput sgr0)"
+NOTE="$(tput setaf 3)!$(tput sgr0)"
+INFO="$(tput setaf 4)i$(tput sgr0)"
+
+# Check if running as root
+if [[ $EUID -eq 0 ]]; then
+    echo "${ERROR} Don't run this script as root! It will use sudo when needed."
+    exit 1
+fi
+
+# Create logs directory if it doesn't exist
+mkdir -p Install-Logs
+LOG="Install-Logs/hyprland-uninstall-$(date +%Y%m%d-%H%M%S).log"
+
+# Helper functions
+is_installed() {
+    dpkg -l | grep -q "^ii  $1 "
+}
+
+remove_package() {
+    if is_installed "$1"; then
+        echo "${INFO} Removing $1..."
+        sudo apt remove -y "$1" >> "$LOG" 2>&1 || {
+            echo "${ERROR} Failed to remove $1"
+            return 1
+        }
+        echo "${OK} $1 removed"
+    else
+        echo "${INFO} $1 is not installed, skipping"
+    fi
+}
+
+# Define packages that were installed by the script
+HYPR_PACKAGES=(
+    "kitty"
+    "waybar"
+    "wlogout"
+    "grim"
+    "slurp"
+    "wl-clipboard"
+    "polkit-kde-agent-1"
+    "pipewire"
+    "wireplumber"
+    "xdg-desktop-portal"
+    "xdg-desktop-portal-gtk"
+    "brightnessctl"
+    "pavucontrol"
+    "playerctl"
+)
+
+echo "${INFO} This script will uninstall Hyprland and related packages."
+read -p "Do you want to continue? [y/N] " -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Uninstall canceled."
+    exit 0
+fi
+
+# Check if we should keep user configuration
+read -p "Do you want to remove Hyprland configuration files in ~/.config/hypr? [y/N] " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    REMOVE_CONFIG=true
+    echo "${INFO} Configuration will be removed."
+else
+    REMOVE_CONFIG=false
+    echo "${INFO} Configuration will be kept."
+fi
+
+# Ask what packages to remove
+echo "${INFO} Select packages to remove:"
+echo "1) Only remove Hyprland itself"
+echo "2) Remove Hyprland and essential runtime packages"
+echo "3) Remove all Hyprland-related packages (most thorough)"
+read -p "Your choice [1-3]: " REMOVAL_LEVEL
+echo
+
+# Manual removal of Hyprland binary files
+echo "${INFO} Removing Hyprland executables..."
+if [ -f /usr/local/bin/Hyprland ]; then
+    sudo rm /usr/local/bin/Hyprland
+    echo "${OK} Removed /usr/local/bin/Hyprland"
+fi
+
+if [ -f /usr/local/bin/hyprland ]; then
+    sudo rm /usr/local/bin/hyprland
+    echo "${OK} Removed /usr/local/bin/hyprland"
+fi
+
+if [ -f /usr/local/bin/hyprctl ]; then
+    sudo rm /usr/local/bin/hyprctl
+    echo "${OK} Removed /usr/local/bin/hyprctl"
+fi
+
+if [ -d /usr/local/share/hyprland ]; then
+    sudo rm -rf /usr/local/share/hyprland
+    echo "${OK} Removed /usr/local/share/hyprland"
+fi
+
+# Level-based package removal
+if [[ "$REMOVAL_LEVEL" == "2" || "$REMOVAL_LEVEL" == "3" ]]; then
+    echo "${INFO} Removing essential runtime packages..."
+    for pkg in "${HYPR_PACKAGES[@]}"; do
+        remove_package "$pkg"
+    done
+fi
+
+if [[ "$REMOVAL_LEVEL" == "3" ]]; then
+    echo "${INFO} Removing all Hyprland-related packages..."
+
+    # Additional packages to remove in thorough cleanup
+    EXTRA_PACKAGES=(
+        "xwayland"
+        "libgbm-dev"
+        "libliftoff-dev"
+        "libxcb-composite0-dev"
+        "libxcb-cursor-dev"
+        "libxcb-dri3-dev"
+        "libxcb-ewmh-dev"
+        "libxcb-icccm4-dev"
+        "libxcb-present-dev"
+        "libxcb-render-util0-dev"
+    )
+
+    for pkg in "${EXTRA_PACKAGES[@]}"; do
+        remove_package "$pkg"
+    done
+
+    # Offer to autoremove unused packages
+    read -p "Do you want to run apt autoremove to clean up unused dependencies? [y/N] " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo "${INFO} Removing unused dependencies..."
+        sudo apt autoremove -y >> "$LOG" 2>&1
+        echo "${OK} Unused dependencies removed"
+    fi
+fi
+
+# Remove configuration if requested
+if [[ "$REMOVE_CONFIG" == "true" ]]; then
+    echo "${INFO} Removing Hyprland configuration..."
+    if [ -d "$HOME/.config/hypr" ]; then
+        rm -rf "$HOME/.config/hypr"
+        echo "${OK} Removed ~/.config/hypr"
+    fi
+fi
+
+echo
+echo "${OK} Uninstallation complete!"
+echo "Log file: $LOG"
+echo
+echo "You may need to reboot for all changes to take effect."
+
+read -p "Would you like to reboot now? [y/N] " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo "Rebooting..."
+    sudo reboot
+fi
+

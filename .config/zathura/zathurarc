@@ -1,0 +1,84 @@
+" Colors
+set default-bg              "#0F1419"
+set default-fg              "#A3ACB7"
+
+set statusbar-bg            "#141A20"
+set statusbar-fg            "#23B0A3"
+
+set inputbar-bg             "#0F1419"
+set inputbar-fg             "#A3ACB7"
+
+set notification-error-bg   "#FB6F92"
+set notification-error-fg   "#0F1419"
+
+set notification-warning-bg "#FB6F92"
+set notification-warning-fg "#0F1419"
+
+set highlight-color         "#C39720"
+set highlight-active-color  "#FB6F92"
+
+set completion-highlight-fg "#23B0A3"
+set completion-highlight-bg "#0F1419"
+
+set completion-bg           "#0F1419"
+set completion-fg           "#A3ACB7"
+
+set notification-bg         "#A3ACB7"
+set notification-fg         "#0F1419"
+
+set recolor                 "true"
+set recolor-lightcolor      "#0F1419"
+set recolor-darkcolor       "#A3ACB7"
+set recolor-reverse-video   "true"
+set recolor-keephue         "false"
+
+" Clipboard
+set selection-clipboard clipboard
+
+" Search
+set incremental-search true
+set search-hadjust true
+
+" Autoadjust
+set adjust-open width
+
+" Typography
+set font "Terminus 12"
+
+# mappings
+" Zoom in/out
+map [normal]     z zoom in
+map [normal]     Z zoom out
+map [fullscreen] z zoom in
+map [fullscreen] Z zoom out
+
+" Toggle mode
+map [normal]     D toggle_page_mode
+map [fullscreen] D toggle_page_mode
+
+" Scroll
+map [normal]     u scroll half-up
+map [normal]     d scroll half-down
+map [fullscreen] u scroll half-up
+map [fullscreen] d scroll half-down
+
+" Fullscreen
+" map [normal]     f toggle_fullscreen
+" map [fullscreen] f toggle_fullscreen
+
+" Reload
+map [normal]     <C-r> reload
+map [fullscreen] <C-r> reload
+
+" Status bar
+map [normal]     b toggle_statusbar
+map [fullscreen] b toggle_statusbar
+
+" Set width as in mupdf
+map [normal]     H adjust_window best-fit
+map [normal]     W adjust_window width
+map [fullscreen] H adjust_window best-fit
+map [fullscreen] W adjust_window width
+
+map [normal]     i set recolor
+map [fullscreen] i set recolor

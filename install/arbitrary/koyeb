@@ -1,0 +1,3 @@
+curl -fsSL https://raw.githubusercontent.com/koyeb/koyeb-cli/master/install.sh | sh
+
+echo 'export PATH=$HOME/.koyeb/bin:$PATH' >> ~/.zshrc

@@ -1,0 +1,72 @@
+#!/usr/bin/zsh
+set -euo pipefail
+
+EXTENSIONS=(
+  ahmadawais.shades.of
+  akamud.vscode.theme
+  alexanderalekseenko.darky.purple
+  ban.spellright.3.0.142
+  bierner.markdown.emoji
+  bourhaouta.tailwindshades.0.0.5
+  bradlc.vscode.tailwindcss
+  buuug7.gbk2utf8.0.6.2
+  christian.kohler.npm
+  csstools.postcss.1.0.9
+  davidanson.vscode.markdownlint
+  dbaeumer.vscode.eslint
+  docker.docker.0.6.0
+  drewxs.tokyo.night
+  eamodio.gitlens.17.0.3
+  endormi.2077.theme
+  enkia.tokyo.night
+  esbenp.prettier.vscode
+  expo.vscode.expo
+  github.copilot.1.312.0
+  github.copilot.chat
+  github.vscode.github
+  github.vscode.pull
+  hashicorp.terraform.2.34.3
+  inlang.vs.code
+  jinno.codelens.sample
+  johnpapa.winteriscoming.1.4.4
+  me.dutour
+  ms.azuretools.vscode
+  ms.dotnettools.vscode
+  ms.python.debugpy
+  ms.python.mypy
+  ms.python.python
+  ms.python.vscode
+  ms.vscode
+  ms.vscode.vscode
+  orta.vscode.jest
+  orta.vscode.twoslash
+  prisma.prisma.6.7.0
+  rebornix.project.snippets
+  redhat.vscode.yaml
+  ritwickdey.liveserver.5.7.9
+  sallar.vscode.duotone
+  sclu1034.justfile.2.1.0
+  sldobri.bunker.1.1.6
+  s.nlf
+  stripe.vscode.stripe
+  thomaz.preparing.1.7.0
+  tomoki1207.pdf.1.2.2
+  unifiedjs.vscode.mdx
+  unthrottled.doki.theme
+  usernamehw.errorlens.3.26.0
+  wallabyjs.console.ninja
+  yile.ou.paddy
+  yoavbls.pretty.ts
+  yzhang.markdown.all
+  zhuangtongfa.material.theme
+  zignd.html.css
+)
+
+echo "Installing VS Code extensions..."
+for ext in "${EXTENSIONS[@]}"; do
+  echo " → $ext"
+  code --install-extension "$ext" --force || true
+done
+
+echo "✅ Done."
+

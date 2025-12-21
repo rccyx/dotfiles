@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -euo pipefail
+
+wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+# Use batch mode to avoid prompts; still writes to ~/.zshrc below
+bash Miniconda3-latest-Linux-x86_64.sh -b -p "$HOME/miniconda3"
+
+echo 'export PATH="$HOME/miniconda3/bin:$PATH"' >> ~/.zshrc
+echo ". $HOME/miniconda3/etc/profile.d/conda.sh" >> ~/.zshrc

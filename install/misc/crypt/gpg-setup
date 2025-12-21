@@ -1,0 +1,51 @@
+#!/bin/bash
+
+KEY_DIR=~/.keys
+AES_KEY_FILE=$KEY_DIR/.key
+GIT_CONFIG_FILE=~/.gitconfig
+GPG_PRIVATE_KEY_FILE=$KEY_DIR/gpg_prv.asc
+GPG_PRIVATE_KEY_ID=79821E0224D34EC4969FF6A8E5168EE090AE80D0
+
+[ "$1" = "-p" ] && PYTHON=$2 || PYTHON="python3"
+
+pip install -U pip
+pip install litecrypt  # I call this self  sustainability
+
+git clone git@github.com:rccyx/.keys.git ~/.keys
+
+echo -n "Enter your AES-256 key: "
+read -s KEY1
+echo
+echo -n "Re-enter your AES-256 key: "
+read -s KEY2
+echo
+if [ "$KEY1" != "$KEY2" ]; then
+    echo "Keys do not match. You can try again later. Aborting..."
+    exit 1
+else
+    echo "$KEY2" > "$AES_KEY_FILE"
+    echo "Key saved in $AES_KEY_FILE"
+fi
+
+
+echo "Decrypting the GPG key. The process might take some time; don't alter the target file."
+cd  $KEY_DIR
+$PYTHON -m  dec
+cd
+curl -o "$GIT_CONFIG_FILE" https://raw.githubusercontent.com/rccyx/dotfiles/main/install/misc/.gitconfig/.gitconfig-gpg
+export GPG_TTY=$(tty)
+echo "export GPG_TTY=$(tty)" >> ~/.zshrc
+
+gpg --import "$GPG_PRIVATE_KEY_FILE"
+gpg --armor --export $GPG_PRIVATE_KEY_ID | xclip -selection clipboard
+
+echo -e "\e[1;32mYour public GPG key has been copied to your clipboard. Go paste it where you need to.\e[0m"
+"Last step I need yu to trust the key G, type 'trust' in the  gpg interface, pick a trust level, type 'save' when done"
+gpg --edit-key $GPG_PRIVATE_KEY_ID
+echo "I guess my business is over here. I'll clean up the mess."
+shred -u -z -n 69 "$AES_KEY_FILE"
+shred -u -z -n 69 "$GPG_PRIVATE_KEY_FILE"
+rm -rf $KEY_DIR
+echo -e "\e[1;32mCleanup complete. This job is done.\e[0m"
+exit 0
+

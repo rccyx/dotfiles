@@ -1,0 +1,273 @@
+{
+    "pipx_spec_version": "0.1",
+    "venvs": {
+        "git-filter-repo": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/ashgw/.local/share/pipx/venvs/git-filter-repo/bin/git-filter-repo",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {},
+                    "apps": [
+                        "git-filter-repo"
+                    ],
+                    "apps_of_dependencies": [],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "git-filter-repo",
+                    "package_or_url": "git-filter-repo",
+                    "package_version": "2.47.0",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.13.5",
+                "source_interpreter": {
+                    "__Path__": "/home/ashgw/miniconda3/bin/python3.13",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "mypy": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/ashgw/.local/share/pipx/venvs/mypy/bin/dmypy",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/ashgw/.local/share/pipx/venvs/mypy/bin/mypy",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/ashgw/.local/share/pipx/venvs/mypy/bin/mypyc",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/ashgw/.local/share/pipx/venvs/mypy/bin/stubgen",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/ashgw/.local/share/pipx/venvs/mypy/bin/stubtest",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {},
+                    "apps": [
+                        "dmypy",
+                        "mypy",
+                        "mypyc",
+                        "stubgen",
+                        "stubtest"
+                    ],
+                    "apps_of_dependencies": [],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "mypy",
+                    "package_or_url": "mypy",
+                    "package_version": "1.17.1",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.13.5",
+                "source_interpreter": {
+                    "__Path__": "/home/ashgw/miniconda3/bin/python3.13",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "ruff": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/ashgw/.local/share/pipx/venvs/ruff/bin/ruff",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {},
+                    "apps": [
+                        "ruff"
+                    ],
+                    "apps_of_dependencies": [],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "ruff",
+                    "package_or_url": "ruff",
+                    "package_version": "0.12.9",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.13.5",
+                "source_interpreter": {
+                    "__Path__": "/home/ashgw/miniconda3/bin/python3.13",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "smokeshow": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/ashgw/.local/share/pipx/venvs/smokeshow/bin/smokeshow",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "httpx": [
+                            {
+                                "__Path__": "/home/ashgw/.local/share/pipx/venvs/smokeshow/bin/httpx",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "markdown-it-py": [
+                            {
+                                "__Path__": "/home/ashgw/.local/share/pipx/venvs/smokeshow/bin/markdown-it",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "pygments": [
+                            {
+                                "__Path__": "/home/ashgw/.local/share/pipx/venvs/smokeshow/bin/pygmentize",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "typer": [
+                            {
+                                "__Path__": "/home/ashgw/.local/share/pipx/venvs/smokeshow/bin/typer",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "smokeshow"
+                    ],
+                    "apps_of_dependencies": [
+                        "httpx",
+                        "typer",
+                        "markdown-it",
+                        "pygmentize"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [],
+                    "man_paths_of_dependencies": {},
+                    "package": "smokeshow",
+                    "package_or_url": "smokeshow",
+                    "package_version": "0.5.0",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.13.5",
+                "source_interpreter": {
+                    "__Path__": "/home/ashgw/miniconda3/bin/python3.13",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        },
+        "waypaper": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/ashgw/.local/share/pipx/venvs/waypaper/bin/waypaper",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "imageio": [
+                            {
+                                "__Path__": "/home/ashgw/.local/share/pipx/venvs/waypaper/bin/imageio_download_bin",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/ashgw/.local/share/pipx/venvs/waypaper/bin/imageio_remove_bin",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "numpy": [
+                            {
+                                "__Path__": "/home/ashgw/.local/share/pipx/venvs/waypaper/bin/f2py",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/ashgw/.local/share/pipx/venvs/waypaper/bin/numpy-config",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "waypaper"
+                    ],
+                    "apps_of_dependencies": [
+                        "imageio_download_bin",
+                        "imageio_remove_bin",
+                        "f2py",
+                        "numpy-config"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "man_pages": [
+                        "man1/waypaper.1.gz"
+                    ],
+                    "man_pages_of_dependencies": [],
+                    "man_paths": [
+                        {
+                            "__Path__": "/home/ashgw/.local/share/pipx/venvs/waypaper/share/man/man1/waypaper.1.gz",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "man_paths_of_dependencies": {},
+                    "package": "waypaper",
+                    "package_or_url": "waypaper",
+                    "package_version": "2.6",
+                    "pinned": false,
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.5",
+                "python_version": "Python 3.13.5",
+                "source_interpreter": {
+                    "__Path__": "/home/ashgw/miniconda3/bin/python3.13",
+                    "__type__": "Path"
+                },
+                "venv_args": []
+            }
+        }
+    }
+}

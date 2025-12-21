@@ -1,0 +1,2 @@
+git clone https://github.com/hyprwm/hyprcursor.git
+cd hyprcursor && sudo cmake --install build

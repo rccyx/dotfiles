@@ -1,0 +1,24 @@
+set autoindent
+set boldtext
+set casesensitive
+unset mouse
+set multibuffer
+unset nonewlines
+unset nowrap
+unset regexp
+set speller "aspell"
+set suspend
+set tabsize "4"
+set tabstospaces
+unset tempfile
+unset wordbounds
+
+include "~/.nano.d/syntax-highlighting/asm.nanorc"
+include "~/.nano.d/syntax-highlighting/c.nanorc"
+include "~/.nano.d/syntax-highlighting/cython.nanorc"
+include "~/.nano.d/syntax-highlighting/java.nanorc"
+include "~/.nano.d/syntax-highlighting/lua.nanorc"
+include "~/.nano.d/syntax-highlighting/python.nanorc"
+include "~/.nano.d/syntax-highlighting/sh.nanorc"
+
+

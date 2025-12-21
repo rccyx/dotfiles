@@ -1,0 +1,9 @@
+[[verbs]]
+invocation = "edit"
+key = "e"
+execution = "$EDITOR {file}"
+leave_broot = false
+
+[skin]
+default = "gray:23 none"
+tree = "ansi:94 none"

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# this will install * in the pwd
+cd "$(dirname "$0")"
+for file in *; do
+    if [ ! -d "$file" ] && [ "$file" != ".all" ]; then  
+        echo "installing $file..."
+        chmod +x $file
+        ./"$file"
+    fi
+done

@@ -1,0 +1,17 @@
+rm -rf ~/.cache/build-doppler-cli
+mkdir -p ~/.cache/build-doppler-cli
+cd ~/.cache/build-doppler-cli
+
+# clone
+git clone https://github.com/DopplerHQ/cli.git
+cd cli
+
+# build from repo root (NOT cmd/doppler)
+go build -trimpath -ldflags="-s -w" -o doppler .
+
+# install
+install -Dm755 ./doppler "$HOME/.local/bin/doppler" 2>/dev/null || sudo install -m 0755 ./doppler /usr/local/bin/doppler
+
+# verify
+doppler --version
+

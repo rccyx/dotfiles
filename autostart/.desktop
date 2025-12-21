@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Exec=/home/rccyx/.local/bin/startup_apps.sh
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name=Startup Apps
+Comment=Launch my terminals, Obsidian, Chrome, and Cursor

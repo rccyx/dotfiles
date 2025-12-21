@@ -1,0 +1,135 @@
+{
+  "logo": {
+    "type": "file",
+    "source": "/home/ashgw/.config/fastfetch/rccyx.txt",
+    "padding": { "top": 1, "right": 4 }
+  },
+
+  "modules": [
+    "separator",
+
+    {
+      "type": "custom",
+      "format": "\u001b[90m────────────── Hardware ──────────────\u001b[0m"
+    },
+    {
+      "type": "cpu",
+      "key": "CPU",
+      "keyColor": "white",
+      "showPeCoreCount": true
+    },
+    {
+      "type": "memory",
+      "key": "RAM",
+      "keyColor": "white"
+    },
+    {
+      "type": "disk",
+      "key": "Disk",
+      "keyColor": "white"
+    },
+    {
+      "type": "gpu",
+      "key": "GPU",
+      "keyColor": "white"
+    },
+    {
+      "type": "display",
+      "key": "Display",
+      "keyColor": "white"
+    },
+
+    "break",
+
+    {
+      "type": "custom",
+      "format": "\u001b[90m────────────── Software ──────────────\u001b[0m"
+    },
+    {
+      "type": "os",
+      "key": "OS",
+      "keyColor": "white"
+    },
+    {
+      "type": "kernel",
+      "key": "Kernel",
+      "keyColor": "white"
+    },
+    {
+      "type": "packages",
+      "key": "Packages",
+      "keyColor": "white"
+    },
+    {
+      "type": "shell",
+      "key": "Shell",
+      "keyColor": "white"
+    },
+    {
+      "type": "wm",
+      "key": "WM",
+      "keyColor": "white"
+    },
+    {
+      "type": "de",
+      "key": "DE",
+      "keyColor": "white"
+    },
+    {
+      "type": "terminal",
+      "key": "Terminal",
+      "keyColor": "white"
+    },
+
+    "break",
+
+    {
+      "type": "custom",
+      "format": "\u001b[90m────────────── Theme ─────────────────\u001b[0m"
+    },
+    {
+      "type": "theme",
+      "key": "Theme",
+      "keyColor": "white"
+    },
+    {
+      "type": "font",
+      "key": "Fonts",
+      "keyColor": "white"
+    },
+    {
+      "type": "icons",
+      "key": "Icons",
+      "keyColor": "white"
+    },
+    {
+      "type": "cursor",
+      "key": "Cursor",
+      "keyColor": "white"
+    },
+    {
+      "type": "terminalfont",
+      "key": "Term font",
+      "keyColor": "white"
+    },
+
+    "break",
+
+    {
+      "type": "custom",
+      "format": "\u001b[90m──────────── Uptime / Age ────────────\u001b[0m"
+    },
+    {
+      "type": "command",
+      "key": "OS Age",
+      "keyColor": "white",
+      "text": "birth=$(stat -c %W /); now=$(date +%s); days=$(( (now-birth)/86400 )); echo ${days}d"
+    },
+    {
+      "type": "uptime",
+      "key": "Uptime",
+      "keyColor": "white"
+    }
+  ]
+}
+

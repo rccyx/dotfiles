@@ -1,0 +1,75 @@
+/* Tokyonight - matches your Alacritty palette */
+* {
+  font-family: "Iosevka Nerd Font", "Iosevka", "Noto Sans", monospace;
+  font-size: 14px;
+}
+
+window {
+  margin: 0px;
+  border: 1px solid rgba(122, 162, 247, 0.35);      /* blue border */
+  background-color: rgba(26, 27, 38, 0.88);          /* #1a1b26 with transparency for Hypr blur */
+  border-radius: 12px;
+}
+
+#outer-box {
+  margin: 6px 6px 10px 6px;
+  padding: 0;
+  background-color: transparent;
+}
+
+#input {
+  margin: 10px 10px 6px 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(122, 162, 247, 0.40);
+  background-color: rgba(49, 50, 68, 0.80);         /* #313244 */
+  color: #c0caf5;                                   /* fg */
+}
+
+#input:focus {
+  border: 1px solid rgba(122, 162, 247, 0.70);
+  box-shadow: 0 0 0 2px rgba(122, 162, 247, 0.12);
+}
+
+#scroll {
+  margin: 2px 6px 8px 6px;
+}
+
+#inner-box {
+  padding: 4px;
+  background-color: transparent;
+}
+
+#img {
+  margin-right: 8px;
+}
+
+#entry {
+  padding: 8px 10px;
+  margin: 4px 6px;
+  border-radius: 8px;
+}
+
+#text {
+  color: #a9b1d6;                                   /* normal text */
+}
+
+#entry:selected {
+  background-color: rgba(122, 162, 247, 0.18);      /* blue selection bg */
+  border: 1px solid rgba(122, 162, 247, 0.45);
+}
+
+#text:selected {
+  color: #c0caf5;                                   /* selection text */
+}
+
+#prompt {
+  color: #7aa2f7;                                   /* blue prompt label */
+  padding-left: 4px;
+}
+
+/* Optional subtle separators between rows */
+#entry:not(:selected) {
+  outline: 1px solid rgba(26, 27, 38, 0.0);
+}
+

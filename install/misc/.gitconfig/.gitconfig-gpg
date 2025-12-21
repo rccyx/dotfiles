@@ -1,0 +1,65 @@
+[user]
+    email = oss@rccyx.com
+    name = rccyx
+    signingkey =  79821E0224D34EC4969FF6A8E5168EE090AE80D0
+
+[gpg]
+    program = gpg
+
+[commit]
+    gpgsign = true
+
+[init]
+    defaultBranch = main
+
+[merge]
+    tool = nvimdiff
+
+[mergetool "nvimdiff"]
+    cmd = nvim -d "$LOCAL" "$REMOTE" "$MERGED" -c "wincmd J"
+    keepBackup = false
+    prompt = false
+
+[diff]
+    tool = nvimdiff
+
+[difftool "nvimdiff"]
+    cmd = nvim -d "$LOCAL" "$REMOTE"
+    prompt = false
+
+[core]
+    editor = nvim
+
+[pull]
+    rebase = true
+
+[push]
+    default = current
+
+[alias]
+    ss="reset --soft HEAD~2" # ss is just easier to type
+    mt='mergetool'
+    b='branch'
+    a = add .
+    p  = push origin
+    pu  = pull origin
+    pprune =  pull --prune
+    st  = status
+    df  = diff
+    c = commit -am
+    ci  = commit -s
+    w   = whatchanged --abbrev-commit
+    r = rebase -i
+    ls  = ls-files
+    unadd = reset HEAD
+    unstage = reset HEAD --
+    last = log -1 HEAD
+    amend = commit --amend
+    l  = log --graph --pretty=format:'%C(auto)%h -%d %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+    review = log -p --max-count=1
+    lsr = ls-remote
+    cl = clone
+    ck = checkout
+    s = status
+    fa='add $(git ls-files --modified | fzf -m --preview "git diff --color -- {1}")'
+

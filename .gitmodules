@@ -1,0 +1,44 @@
+[submodule ".exported"]
+    path = .exported
+  	url = https://github.com/rccyx/.exported.git
+
+[submodule "2fa"]
+    path = .2fa
+  	url = https://github.com/rccyx/.2fa.git
+
+[submodule "fonts"]
+    path = .local/share/fonts
+  	url = https://github.com/rccyx/fonts.git
+
+[submodule "zshfuncs"]
+    path = zshfuncs
+  	url = https://github.com/rccyx/zshfuncs.git
+
+[submodule ".cursor"]
+    path = .cursor
+	url = https://github.com/rccyx/.cursor.git
+
+[submodule "gnome"]
+    path = gnome
+	url = https://github.com/rccyx/gnome.git
+
+[submodule ".icons"]
+    path = .icons
+	url = https://github.com/rccyx/.icons.git
+
+[submodule ".themes"]
+    path = .themes
+    url = https://github.com/rccyx/.themes.git
+
+[submodule "personal"]
+    path = personal
+    url = https://github.com/rccyx/personal.git
+
+[submodule ".wallpapers"]
+    path = .wallpapers
+    url = https://github.com/rccyx/.wallpapers.git
+
+[submodule ".aws"]
+    path = .aws
+    url = https://github.com/rccyx/.aws.git
+

@@ -1,0 +1,122 @@
+
+# Tokyo Night, by Folke
+# https://github.com/folke/tokyonight.nvim/blob/main/extras/alacritty/tokyonight_night.toml
+
+[[colors.indexed_colors]]
+color = "0xff9e64"
+index = 16
+
+[[colors.indexed_colors]]
+color = "0xdb4b4b"
+index = 17
+
+[colors.bright]
+black = "0x414868"
+blue = "0x7aa2f7"
+cyan = "0x7dcfff"
+green = "0x9ece6a"
+magenta = "0xbb9af7"
+red = "0xf7768e"
+white = "0xc0caf5"
+yellow = "0xe0af68"
+
+[colors.normal]
+black = "0x15161e"
+blue = "0x7aa2f7"
+cyan = "0x7dcfff"
+green = "0x9ece6a"
+magenta = "0xbb9af7"
+red = "0xf7768e"
+white = "0xa9b1d6"
+yellow = "0xe0af68"
+
+[colors.primary]
+background = "0x1a1b26"
+foreground = "0xc0caf5"
+
+
+
+[[keyboard.bindings]]
+action = "ToggleViMode"
+key = "Space"
+mods = "Control|Shift"
+
+[[keyboard.bindings]]
+action = "SpawnNewInstance"
+key = "Return"
+mods = "Control|Shift"
+
+[[keyboard.bindings]]
+action = "ScrollLineUp"
+key = "K"
+mods = "Control|Shift"
+
+[[keyboard.bindings]]
+action = "ScrollLineDown"
+key = "J"
+mods = "Control|Shift"
+
+[[keyboard.bindings]]
+action = "IncreaseFontSize"
+key = "Equals"
+mods = "Control|Shift"
+
+[[keyboard.bindings]]
+action = "DecreaseFontSize"
+key = "Minus"
+mods = "Control|Shift"
+
+[[keyboard.bindings]]
+action = "ToggleFullscreen"
+key = "M"
+mods = "Control|Shift"
+
+
+# Hack to turn Ctrl+Backspace into Ctrl+W
+[[keyboard.bindings]]
+chars = "\u0017"
+key = "Back"
+mods = "Control"
+
+
+
+[env]
+TERM = "alacritty"
+
+[selection]
+save_to_clipboard = true
+
+[scrolling]
+history = 10000
+multiplier = 3
+
+[window]
+decorations = "full"
+opacity = 1.0
+
+[window.padding]
+x = 4
+y = 4
+
+[cursor.style]
+blinking = "On"
+shape = "Block"
+
+[font]
+size = 12.0
+
+[font.bold]
+family = "HurmitNerdFont"
+style = "Bold"
+
+[font.bold_italic]
+family = "HurmitNerdFont"
+style = "Bold Italic"
+
+[font.italic]
+family = "HurmitNerdFont"
+style = "Italic"
+
+[font.normal]
+family = "HurmitNerdFont"
+style = "Regular"

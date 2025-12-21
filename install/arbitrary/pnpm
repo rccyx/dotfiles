@@ -1,0 +1,20 @@
+#!/bin/bash
+
+wget -qO- https://get.pnpm.io/install.sh | sh -
+
+echo '# pnpm' >> ~/.zshrc \
+    && echo 'export PNPM_HOME="$HOME/.local/share/pnpm"' >> ~/.zshrc \
+    && echo 'case ":$PATH:" in' >> ~/.zshrc \
+    && echo '  *":$PNPM_HOME:"*) ;;' >> ~/.zshrc \
+    && echo '  *) export PATH="$PNPM_HOME:$PATH" ;;' >> ~/.zshrc \
+    && echo 'esac' >> ~/.zshrc
+
+############# 
+
+export PNPM_HOME="$HOME/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+pnpm i -g typescript ts-node eslint prettier

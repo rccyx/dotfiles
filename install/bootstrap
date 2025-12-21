@@ -1,0 +1,434 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+export DEBIAN_FRONTEND=noninteractive
+export NEEDRESTART_MODE=a
+
+# ---------- colorful logging ----------
+GREEN="\e[1;32m"; CYAN="\e[36m"; RED="\e[31m"; YEL="\e[33m"; DIM="\e[2m"; END="\e[0m"
+say(){  printf "%b%s%b\n" "$CYAN" "$*" "$END"; }
+ok(){   printf "%b%s%b\n" "$GREEN" "$*" "$END"; }
+warn(){ printf "%b%s%b\n" "$YEL" "$*" "$END"; }
+err(){  printf "%b%s%b\n" "$RED" "$*" "$END" >&2; }
+trap 'err "failed at line $LINENO: $BASH_COMMAND"' ERR
+
+have(){ command -v "$1" >/dev/null 2>&1; }
+is_debian(){ [[ -f /etc/debian_version ]]; }
+is_systemd(){ [[ -d /run/systemd/system ]]; }
+
+SCRIPT_SELF="$(readlink -f "$0" 2>/dev/null || printf '%s' "$0")"
+REENTERED="${1-}"; if [[ "$REENTERED" == "--reentered" ]]; then shift; fi
+
+# ---------- repo defaults (fixed) ----------
+: "${REPO_GIT:=https://github.com/rccyx/dotfiles.git}"
+derive_repo_raw_if_possible(){
+  if [[ -z "${REPO_RAW-}" && -n "${REPO_GIT-}" ]]; then
+    if [[ "$REPO_GIT" =~ github.com[:/]+([^/]+)/([^/.]+)(\.git)?$ ]]; then
+      REPO_RAW="https://raw.githubusercontent.com/${BASH_REMATCH[1]}/${BASH_REMATCH[2]}/main"
+    fi
+  fi
+}
+derive_repo_raw_if_possible
+
+# ---------- minimal su / sudo helpers ----------
+_su_root() { local q cmd=""; for q in "$@"; do cmd+=" $(printf "%q" "$q")"; done; su -pc "${cmd# }" root; }
+as_root(){ if have sudo; then sudo -E "$@"; else _su_root "$@"; fi; }
+
+APT_UPDATED=0
+apt_update_once(){ if [[ $APT_UPDATED -eq 0 ]]; then as_root apt-get update -yq || true; APT_UPDATED=1; fi; }
+
+prompt_yes_no(){ local ans; [[ "${BOOTSTRAP_ASSUME_YES:-0}" == "1" ]] && return 0; read -r -p "$1 [y/N]: " ans; [[ "$ans" =~ ^[Yy]$ ]]; }
+
+need_debian_pkg(){ is_debian || return 0; dpkg -s "$1" >/dev/null 2>&1 || { apt_update_once; as_root apt-get install -y "$1"; }; }
+
+# ---------- drop root early ----------
+if [[ $EUID -eq 0 && -z "${ALLOW_ROOT:-}" ]]; then
+  if [[ -n "${SUDO_USER:-}" ]]; then
+    say "dropping root, reentering as $SUDO_USER"
+    exec su - "$SUDO_USER" -c "env BOOTSTRAP_ASSUME_YES=${BOOTSTRAP_ASSUME_YES:-0} REPO_GIT='${REPO_GIT-}' REPO_RAW='${REPO_RAW-}' bash '$SCRIPT_SELF' --reentered"
+  else
+    err "Run as a normal user. The script will escalate only for vitals."
+    exit 1
+  fi
+fi
+
+# ---------- Nix env sourcing helpers ----------
+nix_source_env(){
+  if [[ -e "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ]]; then
+    # shellcheck source=/dev/null
+    . "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh"
+  elif [[ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]]; then
+    # shellcheck source=/dev/null
+    . "$HOME/.nix-profile/etc/profile.d/nix.sh"
+  fi
+  hash -r 2>/dev/null || true
+}
+persist_nix_shell_integration(){
+  # Make future shells pick Nix up
+  local line='. /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh 2>/dev/null || :'
+  grep -Fq "$line" "$HOME/.profile" 2>/dev/null || echo "$line" >> "$HOME/.profile"
+  if [[ -n "${ZDOTDIR-}" ]]; then
+    grep -Fq "$line" "$ZDOTDIR/.zshrc" 2>/dev/null || echo "$line" >> "$ZDOTDIR/.zshrc"
+  else
+    grep -Fq "$line" "$HOME/.zshrc" 2>/dev/null || echo "$line" >> "$HOME/.zshrc"
+  fi
+}
+write_user_nix_conf(){
+  mkdir -p "$HOME/.config/nix"
+  local f="$HOME/.config/nix/nix.conf"
+  if ! grep -q 'experimental-features' "$f" 2>/dev/null; then
+    printf "%s\n" "extra-experimental-features = nix-command flakes" >> "$f"
+  fi
+}
+
+# Source Nix right away if it already exists
+nix_source_env
+
+# ---------- ensure core, sudo, zsh ----------
+ensure_core_then_reexec(){
+  is_debian || return 0
+  if have sudo; then ok "sudo present"; return; fi
+  have su || { err "No sudo and no su. Log in as root, apt-get install sudo passwd, then rerun."; exit 1; }
+  say "installing vitals via su (one pass)"
+  _su_root apt-get update -yq || true
+  _su_root apt-get install -yq --no-install-recommends \
+      sudo passwd login adduser \
+      ca-certificates gnupg curl wget \
+      coreutils findutils util-linux procps \
+      grep gawk sed tar gzip bzip2 xz-utils unzip rsync file less which \
+      iproute2 iputils-ping dnsutils net-tools tzdata locales git || true
+  have sudo || { err "sudo install failed"; exit 1; }
+  say "adding $USER to sudo group"
+  _su_root usermod -aG sudo "$USER" || true
+  say "reentering as $USER to refresh groups"
+  exec su - "$USER" -c "env BOOTSTRAP_ASSUME_YES=${BOOTSTRAP_ASSUME_YES:-0} REPO_GIT='${REPO_GIT-}' REPO_RAW='${REPO_RAW-}' bash '$SCRIPT_SELF' --reentered"
+}
+ensure_vitals_with_sudo(){
+  local pkgs=(
+    passwd login adduser
+    ca-certificates gnupg curl wget
+    coreutils findutils util-linux procps
+    grep gawk sed tar gzip bzip2 xz-utils unzip rsync file less which
+    iproute2 iputils-ping dnsutils net-tools tzdata locales
+    git zsh
+  )
+  local missing=(); for p in "${pkgs[@]}"; do dpkg -s "$p" >/dev/null 2>&1 || missing+=("$p"); done
+  if ((${#missing[@]})); then
+    say "installing missing vitals: ${#missing[@]}"
+    apt_update_once; as_root apt-get install -y --no-install-recommends "${missing[@]}" || true
+  else ok "vitals already present"; fi
+}
+ensure_core_then_reexec
+ensure_vitals_with_sudo
+
+# ---------- Nix: detect, repair/uninstall, install, source ----------
+nix_cleanup_manual(){
+  warn "manual Nix cleanup (best effort)"
+  as_root systemctl stop nix-daemon 2>/dev/null || true
+  as_root systemctl disable nix-daemon 2>/dev/null || true
+  as_root rm -rf /etc/nix /nix 2>/dev/null || true
+  rm -rf "$HOME/.nix-profile" "$HOME/.nix-defexpr" "$HOME/.nix-channels" "$HOME/.local/state/nix/profiles" 2>/dev/null || true
+  as_root rm -f /etc/profile.d/nix.sh 2>/dev/null || true
+}
+nix_repair_or_uninstall(){
+  if [[ -x /nix/nix-installer ]]; then
+    warn "attempting nix repair first"
+    as_root /nix/nix-installer repair --no-confirm 2>/dev/null || true
+    nix_source_env; have nix && return 0
+    warn "repair failed; uninstalling via nix-installer"
+    as_root /nix/nix-installer uninstall ${BOOTSTRAP_ASSUME_YES:+--no-confirm} || true
+  else
+    nix_cleanup_manual
+  fi
+}
+ensure_nix(){
+  if have nix; then
+    nix_source_env
+    ok "nix present ($(nix --version 2>/dev/null || echo 'unknown'))"
+  else
+    if [[ -d /nix || -d "$HOME/.nix-profile" || -d "$HOME/.local/state/nix/profiles" || -d /etc/nix ]]; then
+      warn "Nix artifacts detected but command missing -> cleaning"
+      nix_repair_or_uninstall
+    fi
+    say "installing Nix (Determinate, multi-user)"
+    if curl --proto '=https' --tlsv1.2 -fsSL https://install.determinate.systems/nix | \
+       sh -s -- install ${BOOTSTRAP_ASSUME_YES:+--no-confirm}; then
+      ok "Nix installed"
+    else
+      err "Nix install failed"; return 1
+    fi
+    nix_source_env
+  fi
+
+  # daemon alive on systemd
+  if is_systemd; then
+    systemctl --user 2>/dev/null >/dev/null || true
+    as_root systemctl enable nix-daemon >/dev/null 2>&1 || true
+    as_root systemctl start nix-daemon  >/dev/null 2>&1 || true
+  fi
+
+  write_user_nix_conf
+  persist_nix_shell_integration
+  nix_source_env
+  hash -r 2>/dev/null || true
+  have nix || { err "nix still not on PATH"; exit 1; }
+  ok "nix ok: $(nix --version)"
+  export NIX_CONFIG="experimental-features = nix-command flakes"
+}
+
+# ---------- tool installers (idempotent) ----------
+nix_profile_install(){ nix --extra-experimental-features "nix-command flakes" profile install "$1"; }
+
+ensure_tool(){
+  local cmd="$1" nix_attr="${2:-}" apt_pkg="${3:-}"
+  if have "$cmd"; then ok "$cmd present ($(command -v "$cmd"))"; return 0; fi
+  if have nix && [[ -n "$nix_attr" ]]; then
+    say "nix profile install nixpkgs#$nix_attr"
+    if nix_profile_install "nixpkgs#$nix_attr"; then have "$cmd" && { ok "$cmd via nix"; return 0; }; else warn "nix failed for $cmd"; fi
+  fi
+  if is_debian && [[ -n "$apt_pkg" ]]; then
+    say "apt install $apt_pkg"; apt_update_once; as_root apt-get install -y "$apt_pkg" || true
+    # Debian quirk: fd-find provides fdfind
+    if [[ "$cmd" == "fd" && ! -x "$(command -v fd 2>/dev/null)" && -x "$(command -v fdfind 2>/dev/null)" ]]; then
+      as_root ln -sf "$(command -v fdfind)" /usr/local/bin/fd
+    fi
+    have "$cmd" && { ok "$cmd via apt"; return 0; }
+  fi
+  have "$cmd" || err "failed to install $cmd"
+}
+
+force_tool(){
+  local check_cmd="$1" script_rel="$2"
+  have "$check_cmd" && { ok "$check_cmd present"; return; }
+  [[ -z "${REPO_RAW-}" ]] && { err "REPO_RAW not set. Cannot run $script_rel"; return 1; }
+  say "installing $check_cmd via $script_rel"
+  bash <(curl -fsSL "$REPO_RAW/install/arbitrary/$script_rel") || err "$script_rel failed"
+  have "$check_cmd" && ok "$check_cmd installed"
+}
+
+# ---------- dotfiles sync ----------
+dir_differs(){ [[ ! -d "$2" ]] && return 0; rsync -rcni --delete --exclude ".git/" "$1/" "$2/" | grep -qE '^[<>ch*]'; }
+file_differs(){ [[ ! -e "$2" ]] && return 0; cmp -s "$1" "$2" && return 1 || return 0; }
+
+copy_file(){
+  local src="$1" dst="$2" rel="$3"
+  mkdir -p "$(dirname "$dst")"
+  if [[ -e "$dst" ]]; then
+    if file_differs "$src" "$dst"; then
+      if prompt_yes_no "File exists: $rel. Overwrite"; then cp -a "$src" "$dst"; ok "overwrote file: $rel"; else say "kept file: $rel"; fi
+    else ok "same file, skipped: $rel"; fi
+  else cp -a "$src" "$dst"; ok "added file: $rel"; fi
+}
+
+merge_dir(){
+  local src="$1" dst="$2" rel="$3"
+  mkdir -p "$dst"
+  if dir_differs "$src" "$dst"; then
+    if prompt_yes_no "Dir differs: $rel. Merge updates into your copy"; then rsync -a "$src/" "$dst/"; ok "merged dir: $rel"; else say "kept dir: $rel"; fi
+  else ok "same dir, skipped: $rel"; fi
+}
+
+copy_entry(){ local src="$1" rel="$2" dst="$HOME/$rel"; [[ -d "$src" ]] && merge_dir "$src" "$dst" "$rel" || copy_file "$src" "$dst" "$rel"; }
+
+EXCLUDES=(
+  ".git" ".github" ".gitmodules" ".vscode" "install" "other" ".local"
+  ".wallpapers" "gnome" "autostart" ".aws" "personal"
+  ".icons" ".packages" "README.md"
+)
+
+
+clone_dotfiles_tmp(){
+  local tmp; tmp="$(mktemp -d)"
+  say "dotfiles repo: $REPO_GIT"
+  read -r -p "Sync dotfiles from repo now? [y/N]: " choice
+  [[ "$choice" =~ ^[Yy]$ ]] || { say "Skip dotfiles sync."; return 1; }
+  say "cloning to $tmp"
+  git clone --depth 1 "$REPO_GIT" "$tmp" >/dev/null 2>&1 || { err "git clone failed: $REPO_GIT"; rm -rf "$tmp"; return 1; }
+  export _DOT_TMP="$tmp"; derive_repo_raw_if_possible; return 0
+}
+
+sync_dotfiles_from_repo(){
+  local tmp="$1"
+  say "Deep copying all dotfiles (excluding: ${EXCLUDES[*]})"
+
+  # Copy everything recursively, excluding the listed items
+  while IFS= read -r -d '' path; do
+    local rel="${path#$tmp/}"
+
+    # Skip if any part of the path matches excluded patterns
+    local skip=0
+    for exclude in "${EXCLUDES[@]}"; do
+      if [[ "$rel" == "$exclude"/* || "$rel" == "$exclude" ]]; then
+        skip=1
+        break
+      fi
+    done
+
+    if [[ $skip -eq 1 ]]; then
+      say "skip excluded: $rel"
+      continue
+    fi
+
+    copy_entry "$path" "$rel"
+  done < <(find "$tmp" -mindepth 1 -type f -o -type d -print0 | sort)
+}
+
+# ---------- Start ----------
+ensure_nix   # do Nix early so PATH is hot
+
+# Dotfiles first
+if clone_dotfiles_tmp; then
+  say "==> Syncing dotfiles"; sync_dotfiles_from_repo "$_DOT_TMP"; rm -rf "$_DOT_TMP"
+fi
+
+say "installing base tools if missing"
+ensure_tool git        git        git
+ensure_tool curl       curl       curl
+ensure_tool wget       wget       wget
+ensure_tool nvim       neovim     neovim
+ensure_tool tmux       tmux       tmux
+ensure_tool bat        bat        bat
+ensure_tool rg         ripgrep    ripgrep
+ensure_tool eza        eza        eza
+ensure_tool fd         fd         fd-find
+ensure_tool xclip      xclip      xclip
+ensure_tool htop       htop       htop
+ensure_tool btop       btop       btop
+ensure_tool tree       tree       tree
+ensure_tool direnv     direnv     direnv
+ensure_tool fzf        fzf        fzf
+ensure_tool man        man-db     man-db
+ensure_tool python3    python3    python3
+ensure_tool ssh        openssh    openssh-client
+ensure_tool zathura    zathura    zathura
+ensure_tool nmap       nmap       nmap
+ensure_tool tor        tor        tor
+ensure_tool feh        feh        feh
+ensure_tool picom      picom      picom
+ensure_tool i3         i3         i3-wm
+ok "base tools done"
+
+# ---------- Optional proprietary installs (prompted) ----------
+install_obsidian_prompt(){
+  if have obsidian; then ok "obsidian present"; return 0; fi
+  if prompt_yes_no "Install Obsidian now via Nix (unfree)"; then
+    say "installing Obsidian with a one-shot unfree allow"
+    NIXPKGS_ALLOW_UNFREE=1 nix --extra-experimental-features "nix-command flakes" \
+      profile install nixpkgs#obsidian --impure || err "Obsidian install failed"
+    have obsidian && ok "Obsidian installed" || warn "Obsidian not found after install"
+  else
+    say "Skipped Obsidian"
+  fi
+}
+install_obsidian_prompt
+
+# TPM - only if missing
+[[ -d "$HOME/.tmux/plugins/tpm" ]] || git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm" >/dev/null 2>&1 || true
+
+# ensure OMZ custom plugins exist if Oh My Zsh is present
+if [[ -d "$HOME/.oh-my-zsh" ]]; then
+  ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+  ZCUST="$ZSH_CUSTOM/plugins"; mkdir -p "$ZCUST"
+  [[ -d "$ZCUST/zsh-autosuggestions" ]] || git clone https://github.com/zsh-users/zsh-autosuggestions "$ZCUST/zsh-autosuggestions" >/dev/null 2>&1 || true
+  [[ -d "$ZCUST/zsh-syntax-highlighting" ]] || git clone https://github.com/zsh-users/zsh-syntax-highlighting "$ZCUST/zsh-syntax-highlighting" >/dev/null 2>&1 || true
+fi
+
+
+ask_install() {
+  local name="$1" bin="$2"
+  read -r -p "Do you want to install $name ($bin)? [y/N] " ans
+  case "$ans" in
+    [yY]|[yY][eE][sS]) force_tool "$name" "$bin" ;;
+    *) echo "Skipping $name" ;;
+  esac
+}
+
+# Optional language stacks from your repo (idempotent)
+ask_install conda     "conda"
+ask_install node      "node"
+ask_install pnpm      "pnpm"
+ask_install poetry    "poetry"
+ask_install go        "go"
+ask_install terraform "terraform"
+ask_install bun       "bun"
+
+
+
+# Rust optional
+if have cargo || have rustup; then ok "rust present"; else
+  if prompt_yes_no "Install rust"; then
+    if [[ -n "${REPO_RAW-}" ]]; then bash <(curl -fsSL "$REPO_RAW/install/arbitrary/rust") || err "rust install failed"
+    else say "Installing rustup from upstream"; curl -fsSL https://sh.rustup.rs | sh -s -- -y || true; fi
+  else say "Skipped rust"; fi
+fi
+
+# GNOME extras (optional)
+is_gnome_session(){ [[ "${XDG_CURRENT_DESKTOP:-}${XDG_SESSION_DESKTOP:-}" =~ GNOME ]] || pgrep -x gnome-shell >/dev/null 2>&1; }
+if is_gnome_session && prompt_yes_no "GNOME detected. Install GNOME extras and load keybindings from repo/other"; then
+  if is_debian; then apt_update_once; as_root apt-get install -y gnome-tweaks gnome-shell-extensions dconf-cli || true; fi
+  if have dconf && [[ -n "${REPO_RAW-}" ]]; then
+    if f="$(mktemp)"; curl -fsSL "$REPO_RAW/other/keybindings.dconf" -o "$f" 2>/dev/null && [[ -s "$f" ]]; then
+      if prompt_yes_no "Apply repo keybindings to your GNOME settings"; then dconf load /org/gnome/settings-daemon/plugins/media-keys/ < "$f" || true; fi
+      rm -f "$f"
+    fi
+  fi
+fi
+
+# SSH keys prompt
+if prompt_yes_no "Set up GitHub SSH keys now"; then
+  if [[ -n "${REPO_RAW-}" ]]; then bash <(curl -fsSL "$REPO_RAW/.ssh/_gh_gen.sh") || err "SSH key setup failed"
+  else say "REPO_RAW not set; skipping SSH helper"; fi
+  ok "SSH keys step done"
+else say "skip SSH keys; run your helper when ready"; fi
+
+mkdir -p "$HOME"/{work,trash,personal}
+ok "bootstrap complete"
+
+say "Would you like to install Hyprland?"
+read -r -p "[y/N]: " ans
+case "$ans" in
+  [yY]|[yY][eE][sS])
+    say "Fetching Hyprland installer..."
+    if curl -fsSL "https://raw.githubusercontent.com/rccyx/dotfiles/refs/heads/main/install/hyprland/install" | bash; then
+      ok "Hyprland installed successfully"
+    else
+      err "Hyprland installer failed"
+    fi
+    ;;
+  *)
+    warn "Skipping Hyprland installation"
+    ;;
+esac
+
+say "Would you like to setup SDDM and the theme?"
+read -r -p "[y/N]: " ans
+case "$ans" in
+  [yY]|[yY][eE][sS])
+    say "Fetching SDDM installer..."
+    if curl -fsSL "https://raw.githubusercontent.com/rccyx/thyx/refs/heads/main/setup" | bash; then
+      ok "SDDM setup successfully"
+    else
+      err "SDDM setup failed"
+    fi
+    ;;
+  *)
+    warn "Skipping SDDM setup"
+    ;;
+esac
+
+say "Would you like to setup your GPG keys @rccyx?"
+read -r -p "[y/N]: " ans
+case "$ans" in
+  [yY]|[yY][eE][sS])
+    say "Setting up..."
+    if curl -fsSL "http://raw.githubusercontent.com/rccyx/dotfiles/refs/heads/main/install/post-bootstrap" | bash; then
+      ok "GPG setup completed successfully"
+    else
+      err "GPG setup failed"
+    fi
+    ;;
+  *)
+    warn "GPG is done"
+    ;;
+esac
+

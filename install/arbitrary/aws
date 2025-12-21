@@ -1,0 +1,13 @@
+#!/bin/zsh
+sudo apt purge -y awscli
+hash -r
+sudo apt install -y unzip curl
+tmpdir="$(mktemp -d)"; cd "$tmpdir"
+curl -fsSLo awscliv2.zip https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+unzip -q awscliv2.zip
+sudo ./aws/install --install-dir /usr/local/aws-cli --bin-dir /usr/local/bin || \
+sudo ./aws/install --update --install-dir /usr/local/aws-cli --bin-dir /usr/local/bin
+which aws
+aws --version
+aws sts get-caller-identity
+

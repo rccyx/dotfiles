@@ -1,0 +1,123 @@
+# ================= Catppuccin Mocha preset =================
+# base      #1e1e2e
+# surface1  #45475a
+# text      #cdd6f4
+# blue      #89b4fa
+# mauve     #cba6f7
+# green     #a6e3a1
+# peach     #fab387
+# yellow    #f9e2af
+# red       #f38ba8
+
+format = """
+[](#89b4fa)\
+$os\
+[](bg:#89b4fa fg:#1e1e2e)\
+[](bg:#cba6f7 fg:#89b4fa)\
+$directory\
+[](fg:#cba6f7 bg:#fab387)\
+$git_branch\
+$git_status\
+[](fg:#fab387 bg:#a6e3a1)\
+$nodejs\
+$rust\
+$golang\
+$zsh\
+$vscode\
+$python\
+$php\
+[](fg:#a6e3a1 bg:#89b4fa)\
+$time\
+[ ](fg:#89b4fa)\
+\n$character"""
+
+[directory]
+style  = "fg:#1e1e2e bg:#cba6f7"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music"     = " "
+"Pictures"  = " "
+
+[git_branch]
+style  = "bg:#fab387"
+format = '[[ $symbol $branch ](fg:#1e1e2e bg:#fab387)]($style)'
+
+[git_status]
+style  = "fg:#1e1e2e bg:#fab387"
+format = '[[($all_status$ahead_behind )](fg:#1e1e2e bg:#fab387)]($style)'
+conflicted = "‼"
+ahead      = "⇡"
+behind     = "⇣"
+diverged   = "↕"
+up_to_date = "✓"
+stashed    = " "
+modified   = "●"
+staged     = "[++\\($count\\)](fg:#a6e3a1)"
+renamed    = "➜"
+deleted    = "✖"
+
+[character]
+success_symbol = "[✔](fg:#a6e3a1)"
+error_symbol   = "[✖](fg:#f38ba8)"
+
+[nodejs]
+symbol = ""
+style  = "bg:#a6e3a1"
+format = '[[ $symbol ($version) ](fg:#1e1e2e bg:#a6e3a1)]($style)'
+
+[rust]
+symbol = ""
+style  = "bg:#a6e3a1"
+format = '[[ $symbol ($version) ](fg:#1e1e2e bg:#a6e3a1)]($style)'
+
+[golang]
+symbol = ""
+style  = "bg:#a6e3a1"
+format = '[[ $symbol ($version) ](fg:#1e1e2e bg:#a6e3a1)]($style)'
+
+[python]
+symbol = ""
+style  = "bg:#a6e3a1"
+format = '[[ $symbol ($version) ](fg:#1e1e2e bg:#a6e3a1)]($style)'
+
+[php]
+symbol = ""
+style  = "bg:#a6e3a1"
+format = '[[ $symbol ($version) ](fg:#1e1e2e bg:#a6e3a1)]($style)'
+
+[time]
+disabled    = false
+time_format = "%R"
+style       = "bg:#89b4fa"
+format      = '[[ $time ](fg:#1e1e2e bg:#89b4fa)]($style)'
+
+[os]
+disabled = false
+style    = "fg:#1e1e2e bg:#89b4fa"
+
+[os.symbols]
+Windows           = "󰍲"
+Ubuntu            = "󰌽 "
+SUSE              = ""
+Raspbian          = "󰐿"
+Mint              = "󰣭"
+Macos             = ""
+Manjaro           = ""
+Linux             = "󰌽"
+Gentoo            = "󰣨"
+Fedora            = "󰣛"
+Alpine            = ""
+Amazon            = ""
+Android           = ""
+Arch              = "󰣇"
+Artix             = "󰣇"
+CentOS            = ""
+Debian            = "󰣚"
+Redhat            = "󱄛"
+RedHatEnterprise  = "󱄛"
+

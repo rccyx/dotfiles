@@ -1,0 +1,113 @@
+format = """
+[](#a18aff)\
+$os\
+[](bg:#a18aff fg:#0d0d0d)\
+[](bg:#ff9abf fg:#a18aff)\
+$directory\
+[](fg:#ff9abf bg:#ffb784)\
+$git_branch\
+$git_status\
+[](fg:#ffb784 bg:#7ac7f6)\
+$nodejs\
+$rust\
+$golang\
+$zsh\
+$vscode\
+$python\
+$php\
+[](fg:#7ac7f6 bg:#2b2d42)\
+$time\
+[ ](fg:#2b2d42)\
+\n$character"""
+
+[directory]
+style = "fg:#fefefe bg:#ff9abf"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music"     = " "
+"Pictures"  = " "
+
+
+[git_status]
+style = "fg:#2b2d42 bg:#7ac7f6"
+format = '[[($all_status$ahead_behind )](fg:#2b2d42 bg:#ffb784)]($style)'
+conflicted = '‼'
+ahead = '⇡'
+behind = '⇣'
+diverged   = '↕'
+up_to_date = '✓'
+stashed = " "
+modified = '●'
+staged = '[++\($count\)](green)'
+renamed = '➜'
+deleted = '✖'
+
+[git_branch]
+style = "bg:#ffb784"
+format = '[[ $symbol $branch ](fg:#2b2d42 bg:#ffb784)]($style)'
+
+[character]
+success_symbol = "[✔](fg:#7ac7f6)"
+error_symbol = "[✖](fg:#ff9abf)"
+
+[nodejs]
+symbol = ""
+style = "bg:#7ac7f6"
+format = '[[ $symbol ($version) ](fg:#2b2d42 bg:#7ac7f6)]($style)'
+
+[rust]
+symbol = ""
+style = "bg:#7ac7f6"
+format = '[[ $symbol ($version) ](fg:#2b2d42 bg:#7ac7f6)]($style)'
+
+[golang]
+symbol = ""
+style = "bg:#7ac7f6"
+format = '[[ $symbol ($version) ](fg:#2b2d42 bg:#7ac7f6)]($style)'
+
+[python]
+symbol = ""
+style = "bg:#7ac7f6"
+format = '[[ $symbol ($version) ](fg:#2b2d42 bg:#7ac7f6)]($style)'
+
+[php]
+symbol = ""
+style = "bg:#7ac7f6"
+format = '[[ $symbol ($version) ](fg:#2b2d42 bg:#7ac7f6)]($style)'
+
+[time]
+disabled = false
+time_format = "%R"
+format = '[[ $time ](fg:#ff9abf bg:#2b2d42)]($style)'
+
+[os]
+disabled = false
+style = "fg:#ffffff bg:#a18aff"
+
+
+[os.symbols]
+Windows           = "󰍲"
+Ubuntu            = "󰌽 "
+SUSE              = ""
+Raspbian          = "󰐿"
+Mint              = "󰣭"
+Macos             = ""
+Manjaro           = ""
+Linux             = "󰌽"
+Gentoo            = "󰣨"
+Fedora            = "󰣛"
+Alpine            = ""
+Amazon            = ""
+Android           = ""
+Arch              = "󰣇"
+Artix             = "󰣇"
+CentOS            = ""
+Debian            = "󰣚"
+Redhat            = "󱄛"
+RedHatEnterprise  = "󱄛"
+
