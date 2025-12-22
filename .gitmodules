@@ -2,7 +2,7 @@
     path = .exported
   	url = https://github.com/rccyx/.exported.git
 
-[submodule "2fa"]
+[submodule ".2fa"]
     path = .2fa
   	url = https://github.com/rccyx/.2fa.git
 
