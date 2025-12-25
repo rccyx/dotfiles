@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: rccyx/dotfiles
-          token: ${{ secrets.PAT_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
           submodules: recursive
 
       - name: Configure Git author
